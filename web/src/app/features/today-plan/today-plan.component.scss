@@ -3,6 +3,60 @@
   margin-bottom: 20px;
 }
 
+.summary-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 20px;
+
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.summary-card {
+  h2 {
+    font-size: 1rem;
+    margin: 0 0 10px;
+  }
+
+  .hint {
+    font-size: 0.82rem;
+    color: #9ca3af;
+    margin: 0;
+  }
+}
+
+.weak-point-row,
+.review-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 6px 0;
+  border-bottom: 1px solid #f0f1f4;
+  font-size: 0.85rem;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.weak-point-name,
+.review-name {
+  font-weight: 600;
+}
+
+.weak-point-meta {
+  color: #b45309;
+  font-size: 0.78rem;
+}
+
+.review-meta {
+  color: #c0392b;
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
 .item {
   display: flex;
   gap: 16px;

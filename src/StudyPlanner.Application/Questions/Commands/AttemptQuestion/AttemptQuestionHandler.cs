@@ -7,8 +7,9 @@ using StudyPlanner.Domain.Services;
 namespace StudyPlanner.Application.Questions.Commands.AttemptQuestion;
 
 /// <summary>
-/// Fecha o loop estudo → questão → desempenho: registra a tentativa e atualiza o TopicMastery
-/// de cada tópico coberto pela questão. Cálculo 100% determinístico (MasteryCalculator), sem LLM.
+/// Fecha o loop estudo → questão → desempenho: registra a tentativa, atualiza o TopicMastery de
+/// cada tópico coberto pela questão (MasteryCalculator) e resolve/reagenda a revisão desse tópico
+/// (ReviewScheduler). Tudo determinístico, sem LLM.
 /// </summary>
 public class AttemptQuestionHandler(IStudyPlannerDbContext db) : IRequestHandler<AttemptQuestionCommand, AttemptResultDto>
 {
@@ -38,6 +39,12 @@ public class AttemptQuestionHandler(IStudyPlannerDbContext db) : IRequestHandler
             .Where(tm => tm.UserId == request.UserId && topicIds.Contains(tm.TopicId))
             .ToDictionaryAsync(tm => tm.TopicId, cancellationToken);
 
+        var pendingReviews = await db.Reviews
+            .Where(r => r.UserId == request.UserId && topicIds.Contains(r.TopicId) && r.Status == ReviewStatus.Pending)
+            .ToDictionaryAsync(r => r.TopicId, cancellationToken);
+
+        var today = DateOnly.FromDateTime(DateTimeOffset.UtcNow.UtcDateTime);
+
         foreach (var topicId in topicIds)
         {
             if (!existingMasteries.TryGetValue(topicId, out var mastery))
@@ -50,6 +57,26 @@ public class AttemptQuestionHandler(IStudyPlannerDbContext db) : IRequestHandler
             mastery.AttemptsCount += 1;
             mastery.CorrectCount += isCorrect ? 1 : 0;
             mastery.LastUpdated = DateTimeOffset.UtcNow;
+
+            var previousStep = 0;
+            if (pendingReviews.TryGetValue(topicId, out var pendingReview))
+            {
+                pendingReview.Status = ReviewStatus.Completed;
+                pendingReview.CompletedAt = DateTimeOffset.UtcNow;
+                previousStep = pendingReview.Step;
+            }
+
+            var nextStep = ReviewScheduler.NextStep(previousStep, isCorrect);
+            var nextReviewDate = ReviewScheduler.CalculateNextReviewDate(nextStep, mastery.Mastery, today);
+
+            db.Reviews.Add(new Review
+            {
+                UserId = request.UserId,
+                TopicId = topicId,
+                Step = nextStep,
+                ScheduledDate = nextReviewDate,
+                Status = ReviewStatus.Pending
+            });
         }
 
         await db.SaveChangesAsync(cancellationToken);

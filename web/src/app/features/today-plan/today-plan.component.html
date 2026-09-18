@@ -9,6 +9,36 @@
     <p>Calculando prioridades...</p>
   }
 
+  <div class="summary-row">
+    <section class="card summary-card">
+      <h2>Pontos fracos</h2>
+      @if (weakPoints().length === 0) {
+        <p class="hint">Nenhum ponto fraco identificado ainda — responda questões para o sistema calcular domínio real.</p>
+      }
+      @for (wp of weakPoints(); track wp.topicId) {
+        <div class="weak-point-row">
+          <span class="weak-point-name">{{ wp.topicName }}</span>
+          <span class="weak-point-meta">{{ masteryPercent(wp.mastery) }}% acerto · {{ wp.subjectName }}</span>
+        </div>
+      }
+    </section>
+
+    <section class="card summary-card">
+      <h2>Revisões pendentes</h2>
+      @if (pendingReviews().length === 0) {
+        <p class="hint">Nenhuma revisão pendente no momento.</p>
+      }
+      @for (review of pendingReviews(); track review.reviewId) {
+        <div class="review-row">
+          <span class="review-name">{{ review.topicName }}</span>
+          <span class="review-meta">
+            {{ review.daysOverdue > 0 ? review.daysOverdue + 'd atrasada' : 'hoje' }}
+          </span>
+        </div>
+      }
+    </section>
+  </div>
+
   @if (plan(); as p) {
     <p class="subtitle">{{ p.today }} · ranking gerado pelo motor de priorização (sem IA)</p>
 

@@ -22,6 +22,7 @@ public interface IStudyPlannerDbContext
     DbSet<StudyPlan> StudyPlans { get; }
     DbSet<StudyPlanItem> StudyPlanItems { get; }
     DbSet<StudySession> StudySessions { get; }
+    DbSet<Review> Reviews { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

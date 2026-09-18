@@ -20,6 +20,7 @@ public class StudyPlannerDbContext(DbContextOptions<StudyPlannerDbContext> optio
     public DbSet<StudyPlan> StudyPlans => Set<StudyPlan>();
     public DbSet<StudyPlanItem> StudyPlanItems => Set<StudyPlanItem>();
     public DbSet<StudySession> StudySessions => Set<StudySession>();
+    public DbSet<Review> Reviews => Set<Review>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
