@@ -4,11 +4,12 @@ import { Router } from '@angular/router';
 import { AppStateService } from '../../core/services/app-state.service';
 import { ExamService } from '../../core/services/exam.service';
 import { ExamDetail } from '../../core/models/exam.models';
+import { NoticeUploadComponent } from './notice-upload/notice-upload.component';
 
 @Component({
   selector: 'app-exam-setup',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, NoticeUploadComponent],
   templateUrl: './exam-setup.component.html',
   styleUrl: './exam-setup.component.scss'
 })
@@ -101,6 +102,11 @@ export class ExamSetupComponent implements OnInit {
 
   goToTodayPlan(): void {
     this.router.navigate(['/dashboard']);
+  }
+
+  onNoticeConfirmed(): void {
+    const examId = this.appState.currentExamId();
+    if (examId) this.loadExam(examId);
   }
 
   private loadExam(examId: string): void {

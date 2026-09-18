@@ -1,0 +1,57 @@
+<section class="card notice-upload">
+  <h2>Importar edital (PDF)</h2>
+  <p class="hint">A IA extrai disciplinas e tópicos automaticamente. Você confirma ou edita antes de salvar.</p>
+
+  @if (!structure()) {
+    <div class="upload-row">
+      <input type="file" accept="application/pdf" (change)="onFileSelected($event)" />
+      <button (click)="upload()" [disabled]="!selectedFile() || uploading()">
+        {{ uploading() ? 'Processando...' : 'Enviar e processar' }}
+      </button>
+    </div>
+  }
+
+  @if (errorMessage()) {
+    <div class="notice-error">
+      <p><strong>Não foi possível extrair automaticamente:</strong> {{ errorMessage() }}</p>
+      <p class="hint">Você ainda pode cadastrar disciplinas e tópicos manualmente abaixo.</p>
+    </div>
+  }
+
+  @if (structure(); as s) {
+    <p class="hint">Revise a estrutura extraída antes de confirmar — nada é salvo até você confirmar.</p>
+
+    @for (subject of s.subjects; track $index; let si = $index) {
+      <div class="subject-row">
+        <div class="subject-header">
+          <input type="text" [(ngModel)]="subject.name" placeholder="Nome da disciplina" />
+          <input type="number" [(ngModel)]="subject.weight" min="0.01" max="1" step="0.01" title="Peso" />
+          <button class="link-danger" (click)="removeSubject(si)">remover</button>
+        </div>
+
+        @for (topic of subject.topics; track $index; let ti = $index) {
+          <div class="topic-row">
+            <input type="text" [(ngModel)]="topic.name" placeholder="Nome do tópico" />
+            <input
+              type="number"
+              [(ngModel)]="topic.estimatedIncidence"
+              min="0.01"
+              max="1"
+              step="0.01"
+              title="Incidência"
+            />
+            <button class="link-danger" (click)="removeTopic(si, ti)">remover</button>
+          </div>
+        }
+
+        <button class="secondary" (click)="addTopic(si)">+ tópico</button>
+      </div>
+    }
+
+    <button class="secondary" (click)="addSubject()">+ disciplina</button>
+
+    <button class="primary" (click)="confirmStructure()" [disabled]="confirming()">
+      {{ confirming() ? 'Salvando...' : 'Confirmar estrutura' }}
+    </button>
+  }
+</section>

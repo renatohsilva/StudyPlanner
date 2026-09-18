@@ -28,6 +28,11 @@
       <p>Prova em {{ e.examDate }} · Status: {{ e.status }}</p>
     </section>
 
+    @if (e.subjects.length === 0) {
+      <app-notice-upload [examId]="e.id" (confirmed)="onNoticeConfirmed()" />
+      <p class="divider">ou cadastre manualmente</p>
+    }
+
     <section class="card">
       <h2>Nova disciplina</h2>
       <form (ngSubmit)="createSubject()">

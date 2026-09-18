@@ -24,8 +24,19 @@ builder.Services.Configure<LocalFileStorageOptions>(builder.Configuration.GetSec
 builder.Services.AddSingleton<IFileStorage, LocalFileStorage>();
 builder.Services.AddSingleton<IPdfTextExtractor, PdfPigTextExtractor>();
 
+// Llm:Provider = "Heuristic" (default, sem custo, regex determinístico) ou "Anthropic" (LLM real,
+// requer Llm:Anthropic:ApiKey via user-secrets). Troca de provider sem alterar nenhum outro código,
+// já que tudo depende apenas de ILlmClient.
 builder.Services.Configure<AnthropicLlmOptions>(builder.Configuration.GetSection("Llm:Anthropic"));
-builder.Services.AddHttpClient<ILlmClient, AnthropicLlmClient>();
+var llmProvider = builder.Configuration.GetValue<string>("Llm:Provider") ?? "Heuristic";
+if (string.Equals(llmProvider, "Anthropic", StringComparison.OrdinalIgnoreCase))
+{
+    builder.Services.AddHttpClient<ILlmClient, AnthropicLlmClient>();
+}
+else
+{
+    builder.Services.AddSingleton<ILlmClient, HeuristicExamStructureExtractor>();
+}
 
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(CreateExamCommand).Assembly));
 
