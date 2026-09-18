@@ -12,6 +12,7 @@ public interface IStudyPlannerDbContext
     DbSet<User> Users { get; }
     DbSet<Board> Boards { get; }
     DbSet<Exam> Exams { get; }
+    DbSet<Notice> Notices { get; }
     DbSet<Subject> Subjects { get; }
     DbSet<Topic> Topics { get; }
     DbSet<Question> Questions { get; }

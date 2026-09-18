@@ -6,6 +6,9 @@
 # dotenv files
 .env
 
+# StudyPlanner: PDFs de editais enviados localmente (IFileStorage local)
+src/StudyPlanner.Api/storage/
+
 # User-specific files
 *.rsuser
 *.suo

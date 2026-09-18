@@ -2,7 +2,10 @@ using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using StudyPlanner.Application.Common.Interfaces;
 using StudyPlanner.Application.Exams.Commands.CreateExam;
+using StudyPlanner.Infrastructure.Llm;
+using StudyPlanner.Infrastructure.Pdf;
 using StudyPlanner.Infrastructure.Persistence;
+using StudyPlanner.Infrastructure.Storage;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +19,13 @@ builder.Services.AddOpenApi();
 builder.Services.AddDbContext<StudyPlannerDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("StudyPlannerDb")));
 builder.Services.AddScoped<IStudyPlannerDbContext>(sp => sp.GetRequiredService<StudyPlannerDbContext>());
+
+builder.Services.Configure<LocalFileStorageOptions>(builder.Configuration.GetSection("FileStorage"));
+builder.Services.AddSingleton<IFileStorage, LocalFileStorage>();
+builder.Services.AddSingleton<IPdfTextExtractor, PdfPigTextExtractor>();
+
+builder.Services.Configure<AnthropicLlmOptions>(builder.Configuration.GetSection("Llm:Anthropic"));
+builder.Services.AddHttpClient<ILlmClient, AnthropicLlmClient>();
 
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(CreateExamCommand).Assembly));
 

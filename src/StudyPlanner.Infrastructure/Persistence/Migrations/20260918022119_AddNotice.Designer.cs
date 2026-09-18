@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using StudyPlanner.Infrastructure.Persistence;
@@ -11,9 +12,11 @@ using StudyPlanner.Infrastructure.Persistence;
 namespace StudyPlanner.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(StudyPlannerDbContext))]
-    partial class StudyPlannerDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260918022119_AddNotice")]
+    partial class AddNotice
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

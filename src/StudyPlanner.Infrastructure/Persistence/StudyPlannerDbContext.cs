@@ -10,6 +10,7 @@ public class StudyPlannerDbContext(DbContextOptions<StudyPlannerDbContext> optio
     public DbSet<User> Users => Set<User>();
     public DbSet<Board> Boards => Set<Board>();
     public DbSet<Exam> Exams => Set<Exam>();
+    public DbSet<Notice> Notices => Set<Notice>();
     public DbSet<Subject> Subjects => Set<Subject>();
     public DbSet<Topic> Topics => Set<Topic>();
     public DbSet<Question> Questions => Set<Question>();
