@@ -1,0 +1,48 @@
+<div class="page">
+  <h1>O que estudar hoje</h1>
+
+  @if (errorMessage()) {
+    <p class="error">{{ errorMessage() }}</p>
+  }
+
+  @if (loading()) {
+    <p>Calculando prioridades...</p>
+  }
+
+  @if (plan(); as p) {
+    <p class="subtitle">{{ p.today }} · ranking gerado pelo motor de priorização (sem IA)</p>
+
+    @if (p.items.length === 0) {
+      <p>Cadastre disciplinas e tópicos para gerar um plano.</p>
+    }
+
+    @for (item of p.items; track item.topicId; let i = $index) {
+      <section class="card item">
+        <div class="rank">{{ i + 1 }}</div>
+        <div class="content">
+          <h3>
+            {{ item.topicName }}
+            <span class="badge" [class.review]="item.suggestedType === 'Review'">{{ item.suggestedType }}</span>
+          </h3>
+          <p class="subject">{{ item.subjectName }}</p>
+
+          <div class="meter">
+            <span class="meter-label">Domínio</span>
+            <div class="meter-track">
+              <div class="meter-fill" [style.width.%]="masteryPercent(item.mastery)"></div>
+            </div>
+            <span class="meter-value">{{ masteryPercent(item.mastery) }}%</span>
+          </div>
+
+          <p class="score">Priority score: {{ item.priorityScore | number: '1.2-2' }} · {{ item.attemptsCount }} tentativas</p>
+
+          @if (loggedTopicIds().has(item.topicId)) {
+            <span class="logged">Sessão registrada ✓</span>
+          } @else {
+            <button (click)="logSession(item.topicId)">Registrar 30 min de estudo</button>
+          }
+        </div>
+      </section>
+    }
+  }
+</div>

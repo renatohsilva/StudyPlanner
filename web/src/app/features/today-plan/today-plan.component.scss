@@ -1,0 +1,89 @@
+.subtitle {
+  color: #6b7280;
+  margin-bottom: 20px;
+}
+
+.item {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.rank {
+  flex: 0 0 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #3a4ad6;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+}
+
+.content {
+  flex: 1;
+
+  h3 {
+    margin: 0 0 4px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+}
+
+.subject {
+  margin: 0 0 12px;
+  color: #6b7280;
+  font-size: 0.85rem;
+}
+
+.badge.review {
+  background: #fff2e0;
+  color: #b45309;
+}
+
+.meter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.meter-label {
+  font-size: 0.75rem;
+  color: #6b7280;
+  width: 52px;
+}
+
+.meter-track {
+  flex: 1;
+  height: 8px;
+  background: #eef0f3;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.meter-fill {
+  height: 100%;
+  background: #3a4ad6;
+}
+
+.meter-value {
+  font-size: 0.8rem;
+  font-weight: 600;
+  width: 36px;
+  text-align: right;
+}
+
+.score {
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin: 0 0 12px;
+}
+
+.logged {
+  color: #15803d;
+  font-weight: 600;
+  font-size: 0.85rem;
+}

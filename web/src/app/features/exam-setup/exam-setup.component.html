@@ -1,0 +1,83 @@
+<div class="page">
+  <h1>Cadastro do concurso</h1>
+
+  @if (errorMessage()) {
+    <p class="error">{{ errorMessage() }}</p>
+  }
+
+  @if (!exam()) {
+    <section class="card">
+      <h2>Novo concurso</h2>
+      <form (ngSubmit)="createExam()">
+        <label>
+          Nome
+          <input type="text" name="examName" [(ngModel)]="newExamName" placeholder="TRT-SP Analista Judiciário" required />
+        </label>
+        <label>
+          Data da prova
+          <input type="date" name="examDate" [(ngModel)]="newExamDate" required />
+        </label>
+        <button type="submit" [disabled]="loading()">Criar concurso</button>
+      </form>
+    </section>
+  }
+
+  @if (exam(); as e) {
+    <section class="card">
+      <h2>{{ e.name }}</h2>
+      <p>Prova em {{ e.examDate }} · Status: {{ e.status }}</p>
+    </section>
+
+    <section class="card">
+      <h2>Nova disciplina</h2>
+      <form (ngSubmit)="createSubject()">
+        <label>
+          Nome
+          <input type="text" name="subjectName" [(ngModel)]="newSubjectName" placeholder="Direito Constitucional" required />
+        </label>
+        <label>
+          Peso no edital (0 a 1)
+          <input type="number" name="subjectWeight" [(ngModel)]="newSubjectWeight" min="0.01" max="1" step="0.01" required />
+        </label>
+        <button type="submit">Adicionar disciplina</button>
+      </form>
+    </section>
+
+    @for (subject of e.subjects; track subject.id) {
+      <section class="card subject">
+        <h3>{{ subject.name }} <span class="badge">peso {{ subject.weight }}</span></h3>
+
+        @if (subject.topics.length > 0) {
+          <ul class="topics">
+            @for (topic of subject.topics; track topic.id) {
+              <li>{{ topic.name }} <span class="badge">incidência {{ topic.estimatedIncidence }}</span></li>
+            }
+          </ul>
+        }
+
+        <form (ngSubmit)="createTopic(subject.id)" class="inline-form">
+          <input
+            type="text"
+            [(ngModel)]="newTopicName[subject.id]"
+            name="topicName-{{ subject.id }}"
+            placeholder="Novo tópico"
+            required
+          />
+          <input
+            type="number"
+            [(ngModel)]="newTopicIncidence[subject.id]"
+            name="topicIncidence-{{ subject.id }}"
+            placeholder="incidência"
+            min="0.01"
+            max="1"
+            step="0.01"
+            required
+          />
+          <button type="submit">Adicionar tópico</button>
+        </form>
+      </section>
+    }
+
+    <button class="primary" (click)="goToTodayPlan()">Ir para o plano de hoje →</button>
+  }
+</div>

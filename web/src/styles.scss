@@ -1,0 +1,109 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  background: #f4f5f7;
+  color: #1f2430;
+}
+
+.page {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 24px 16px 64px;
+}
+
+h1 {
+  font-size: 1.5rem;
+  margin-bottom: 16px;
+}
+
+.card {
+  background: #fff;
+  border: 1px solid #e2e4e9;
+  border-radius: 10px;
+  padding: 16px 20px;
+  margin-bottom: 16px;
+}
+
+.card.subject h3 {
+  margin: 0 0 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: #eef1ff;
+  color: #3a4ad6;
+  border-radius: 999px;
+  padding: 2px 10px;
+}
+
+.topics {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 12px;
+
+  li {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    border-bottom: 1px solid #f0f1f4;
+  }
+}
+
+form label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #4a4f5c;
+  margin-bottom: 12px;
+}
+
+input {
+  font-size: 0.95rem;
+  padding: 8px 10px;
+  border: 1px solid #cfd3dc;
+  border-radius: 6px;
+}
+
+form.inline-form {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+
+  input {
+    flex: 1;
+  }
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  background: #e2e4e9;
+  color: #1f2430;
+
+  &.primary {
+    background: #3a4ad6;
+    color: #fff;
+    width: 100%;
+    padding: 12px;
+    font-size: 1rem;
+  }
+}
+
+.error {
+  color: #c0392b;
+  font-weight: 600;
+}

@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk.Worker">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>dotnet-StudyPlanner.Worker-b4b32c86-3212-440a-a7a2-a6fb9de07b89</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.12" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\StudyPlanner.Application\StudyPlanner.Application.csproj" />
+    <ProjectReference Include="..\StudyPlanner.Infrastructure\StudyPlanner.Infrastructure.csproj" />
+  </ItemGroup>
+</Project>

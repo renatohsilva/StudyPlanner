@@ -1,0 +1,25 @@
+.topnav {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 14px 24px;
+  background: #fff;
+  border-bottom: 1px solid #e2e4e9;
+
+  .brand {
+    font-weight: 700;
+    color: #3a4ad6;
+    margin-right: 12px;
+  }
+
+  a {
+    color: #4a4f5c;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.9rem;
+
+    &:hover {
+      color: #3a4ad6;
+    }
+  }
+}
