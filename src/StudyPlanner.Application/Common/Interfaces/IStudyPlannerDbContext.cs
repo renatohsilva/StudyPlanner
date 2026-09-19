@@ -26,6 +26,7 @@ public interface IStudyPlannerDbContext
     DbSet<StudyMaterial> StudyMaterials { get; }
     DbSet<MaterialChunk> MaterialChunks { get; }
     DbSet<MaterialTopic> MaterialTopics { get; }
+    DbSet<AvailabilitySlot> AvailabilitySlots { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

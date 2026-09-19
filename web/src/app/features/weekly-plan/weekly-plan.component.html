@@ -1,0 +1,65 @@
+<div class="page">
+  <h1>Plano semanal</h1>
+
+  @if (errorMessage()) {
+    <p class="error">{{ errorMessage() }}</p>
+  }
+
+  <section class="card">
+    <h2>Disponibilidade</h2>
+    <p class="hint">Quantas horas por dia você tem para estudar este concurso.</p>
+
+    <div class="availability-grid">
+      @for (day of days; track day) {
+        <label class="day-input">
+          <span>{{ dayLabels[day] }}</span>
+          <input type="number" [(ngModel)]="hours[day]" min="0" max="12" step="0.5" />
+        </label>
+      }
+    </div>
+
+    <div class="actions">
+      <button (click)="saveAvailability()" [disabled]="saving()">
+        {{ saving() ? 'Salvando...' : 'Salvar disponibilidade' }}
+      </button>
+      @if (savedMessage()) {
+        <span class="saved">{{ savedMessage() }}</span>
+      }
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="plan-header">
+      <h2>Semana atual {{ plan()?.version ? '· versão ' + plan()!.version : '' }}</h2>
+      <button (click)="generatePlan()" [disabled]="generating()">
+        {{ generating() ? 'Gerando...' : (plan()?.planId ? 'Regenerar plano' : 'Gerar plano') }}
+      </button>
+    </div>
+
+    @if (!plan()?.planId) {
+      <p class="hint">Nenhum plano gerado ainda para esta semana. Configure a disponibilidade e clique em "Gerar plano".</p>
+    }
+
+    @if (plan()?.planId) {
+      <div class="week-grid">
+        @for (date of weekDates(); track date) {
+          <div class="day-column">
+            <div class="day-column-header">{{ dayLabelForDate(date) }} <span class="date">{{ date }}</span></div>
+
+            @if (itemsForDay(date).length === 0) {
+              <p class="hint small">—</p>
+            }
+
+            @for (item of itemsForDay(date); track item.id) {
+              <div class="block" [class.review]="item.type === 'Review'">
+                <span class="block-topic">{{ item.topicName }}</span>
+                <span class="block-subject">{{ item.subjectName }}</span>
+                <span class="block-meta">{{ item.durationMinutes }}min · {{ item.type }}</span>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    }
+  </section>
+</div>

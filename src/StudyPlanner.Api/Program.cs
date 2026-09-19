@@ -5,6 +5,7 @@ using StudyPlanner.Application.Exams.Commands.CreateExam;
 using StudyPlanner.Infrastructure.Embeddings;
 using StudyPlanner.Infrastructure.Llm;
 using StudyPlanner.Infrastructure.Pdf;
+using StudyPlanner.Application.StudyPlans;
 using StudyPlanner.Infrastructure.Persistence;
 using StudyPlanner.Infrastructure.Storage;
 
@@ -41,6 +42,8 @@ else
 {
     builder.Services.AddSingleton<ILlmClient, HeuristicExamStructureExtractor>();
 }
+
+builder.Services.AddScoped<RankedTopicsProvider>();
 
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(CreateExamCommand).Assembly));
 

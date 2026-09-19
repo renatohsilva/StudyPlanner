@@ -24,6 +24,7 @@ public class StudyPlannerDbContext(DbContextOptions<StudyPlannerDbContext> optio
     public DbSet<StudyMaterial> StudyMaterials => Set<StudyMaterial>();
     public DbSet<MaterialChunk> MaterialChunks => Set<MaterialChunk>();
     public DbSet<MaterialTopic> MaterialTopics => Set<MaterialTopic>();
+    public DbSet<AvailabilitySlot> AvailabilitySlots => Set<AvailabilitySlot>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
