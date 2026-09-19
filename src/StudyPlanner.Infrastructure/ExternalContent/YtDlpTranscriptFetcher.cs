@@ -55,9 +55,13 @@ public class YtDlpTranscriptFetcher(IOptions<YtDlpOptions> options) : IYouTubeTr
         }
     }
 
+    // player_client=android,web_safari evita o caminho de extração que exige runtime JS (deno) pra
+    // resolver desafios do YouTube — sem isso, o yt-dlp emite warning e fica mais sujeito a bloqueio.
+    private static readonly string[] PlayerClientArgs = ["--extractor-args", "youtube:player_client=android,web_safari"];
+
     private async Task<string> GetTitleAsync(string youTubeUrl, CancellationToken cancellationToken)
     {
-        var (exitCode, stdout, _) = await RunAsync(["--skip-download", "--print", "%(title)s", youTubeUrl], cancellationToken);
+        var (exitCode, stdout, _) = await RunAsync(["--skip-download", "--print", "%(title)s", .. PlayerClientArgs, youTubeUrl], cancellationToken);
         if (exitCode != 0) return youTubeUrl;
 
         return stdout.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).FirstOrDefault() ?? youTubeUrl;
@@ -71,12 +75,18 @@ public class YtDlpTranscriptFetcher(IOptions<YtDlpOptions> options) : IYouTubeTr
                 "--skip-download", "--write-auto-sub", "--write-sub",
                 "--sub-lang", _options.SubtitleLanguages,
                 "--sub-format", "vtt",
+                .. PlayerClientArgs,
                 "-o", outputTemplate,
                 youTubeUrl
             ],
             cancellationToken);
 
-        if (exitCode != 0)
+        // O YouTube throttla (HTTP 429) quando pedimos vários idiomas em sequência — o yt-dlp sai com
+        // código != 0 mesmo quando o primeiro idioma (o preferido) já baixou com sucesso. Por isso só
+        // tratamos como falha de verdade quando NENHUM .vtt foi produzido; um sucesso parcial é OK
+        // (o chamador escolhe o idioma preferido entre os que existirem).
+        var producedAnySubtitle = Directory.GetFiles(outputDir, "*.vtt").Length > 0;
+        if (exitCode != 0 && !producedAnySubtitle)
         {
             throw new InvalidOperationException(
                 $"yt-dlp não encontrado ou falhou (código {exitCode}). Verifique se está instalado (ver README). " +
