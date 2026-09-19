@@ -1,5 +1,5 @@
 using MediatR;
-using Microsoft.EntityFrameworkCore;
+using StudyPlanner.Application.Common;
 using StudyPlanner.Application.Common.Interfaces;
 using StudyPlanner.Domain.Entities;
 
@@ -10,8 +10,7 @@ public class UploadNoticeHandler(IStudyPlannerDbContext db, IFileStorage fileSto
 {
     public async Task<Guid> Handle(UploadNoticeCommand request, CancellationToken cancellationToken)
     {
-        var examExists = await db.Exams.AnyAsync(e => e.Id == request.ExamId, cancellationToken);
-        if (!examExists) throw new KeyNotFoundException($"Exam {request.ExamId} not found.");
+        await db.EnsureExamOwnedByAsync(request.ExamId, request.UserId, cancellationToken);
 
         var fileUrl = await fileStorage.SaveAsync(
             folder: $"notices/{request.ExamId}",

@@ -66,7 +66,7 @@ dotnet user-secrets set "Jwt:Secret" "$(openssl rand -base64 48)"
 
 No frontend, o token fica no `localStorage` (`AuthService`) e é anexado automaticamente a cada requisição via interceptor; um 401 desloga e redireciona para `/login`.
 
-**Limitação conhecida:** os endpoints ainda não verificam se o usuário autenticado é o *dono* do concurso/recurso que está acessando (ex.: `GET /api/exams/{id}` não confere se `{id}` pertence ao usuário do token) — a autenticação garante *quem* está falando, mas falta a checagem de propriedade (autorização por recurso) em cima disso. Não é um problema para uso solo local, mas precisa ser resolvido antes de expor o sistema para múltiplos usuários de verdade.
+Todo endpoint que lê ou escreve um recurso ligado a um concurso (exame, disciplina, tópico, material, edital, disponibilidade, plano) confere que o concurso pertence ao usuário do token — `ExamOwnershipExtensions.EnsureExamOwnedByAsync` (Application/Common), usado em cada handler. Recurso de outro usuário sempre responde `404` (não `403`) para não confirmar a existência do recurso a quem não é dono. Validado com dois usuários reais via curl: acesso e escrita cruzados retornam 404, o dono legítimo continua funcionando normalmente.
 
 ## Baixando o modelo de embeddings (importação de material do aluno)
 

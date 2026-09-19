@@ -27,7 +27,7 @@ public class ExamsController(ISender sender) : ControllerBase
     [HttpGet("{id:guid}")]
     public async Task<IActionResult> GetById(Guid id, CancellationToken cancellationToken)
     {
-        var exam = await sender.Send(new GetExamByIdQuery(id), cancellationToken);
+        var exam = await sender.Send(new GetExamByIdQuery(id, User.GetUserId()), cancellationToken);
         return exam is null ? NotFound() : Ok(exam);
     }
 

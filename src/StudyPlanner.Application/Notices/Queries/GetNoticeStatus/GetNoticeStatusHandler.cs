@@ -11,6 +11,9 @@ public class GetNoticeStatusHandler(IStudyPlannerDbContext db) : IRequestHandler
         var notice = await db.Notices.FirstOrDefaultAsync(n => n.Id == request.NoticeId, cancellationToken)
             ?? throw new KeyNotFoundException($"Notice {request.NoticeId} not found.");
 
+        var ownedByRequester = await db.Exams.AnyAsync(e => e.Id == notice.ExamId && e.UserId == request.UserId, cancellationToken);
+        if (!ownedByRequester) throw new KeyNotFoundException($"Notice {request.NoticeId} not found.");
+
         return new NoticeStatusDto(notice.Id, notice.ExamId, notice.Status.ToString(), notice.ExtractedStructureJson, notice.ErrorMessage);
     }
 }

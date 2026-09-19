@@ -15,6 +15,8 @@ public class ConfirmNoticeStructureHandler(IStudyPlannerDbContext db) : IRequest
         var exam = await db.Exams.FirstOrDefaultAsync(e => e.Id == notice.ExamId, cancellationToken)
             ?? throw new KeyNotFoundException($"Exam {notice.ExamId} not found.");
 
+        if (exam.UserId != request.UserId) throw new KeyNotFoundException($"Notice {request.NoticeId} not found.");
+
         foreach (var extractedSubject in request.Structure.Subjects)
         {
             var subject = new Subject

@@ -11,7 +11,7 @@ public class GetMaterialsByExamHandler(IStudyPlannerDbContext db)
     public async Task<IReadOnlyList<MaterialStatusDto>> Handle(GetMaterialsByExamQuery request, CancellationToken cancellationToken)
     {
         return await db.StudyMaterials
-            .Where(m => m.ExamId == request.ExamId)
+            .Where(m => m.ExamId == request.ExamId && m.UserId == request.UserId)
             .OrderByDescending(m => m.UploadedAt)
             .Select(m => new MaterialStatusDto(m.Id, m.ExamId, m.Name, m.Status.ToString(), m.ErrorMessage))
             .ToListAsync(cancellationToken);

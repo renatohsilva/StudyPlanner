@@ -25,12 +25,13 @@ public class MaterialsController(ISender sender) : ControllerBase
 
         try
         {
+            var userId = User.GetUserId();
             await using var stream = file.OpenReadStream();
-            var materialId = await sender.Send(new UploadMaterialCommand(User.GetUserId(), examId, file.FileName, stream), cancellationToken);
+            var materialId = await sender.Send(new UploadMaterialCommand(userId, examId, file.FileName, stream), cancellationToken);
 
             await sender.Send(new ProcessMaterialCommand(materialId), cancellationToken);
 
-            var status = await sender.Send(new GetMaterialStatusQuery(materialId), cancellationToken);
+            var status = await sender.Send(new GetMaterialStatusQuery(materialId, userId), cancellationToken);
             return Ok(status);
         }
         catch (KeyNotFoundException ex)
@@ -44,7 +45,7 @@ public class MaterialsController(ISender sender) : ControllerBase
     {
         try
         {
-            var status = await sender.Send(new GetMaterialStatusQuery(materialId), cancellationToken);
+            var status = await sender.Send(new GetMaterialStatusQuery(materialId, User.GetUserId()), cancellationToken);
             return Ok(status);
         }
         catch (KeyNotFoundException ex)
@@ -56,14 +57,21 @@ public class MaterialsController(ISender sender) : ControllerBase
     [HttpGet("api/materials/{materialId:guid}/topics")]
     public async Task<IActionResult> Topics(Guid materialId, CancellationToken cancellationToken)
     {
-        var topics = await sender.Send(new GetMaterialTopicsQuery(materialId), cancellationToken);
-        return Ok(topics);
+        try
+        {
+            var topics = await sender.Send(new GetMaterialTopicsQuery(materialId, User.GetUserId()), cancellationToken);
+            return Ok(topics);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
     }
 
     [HttpGet("api/exams/{examId:guid}/materials")]
     public async Task<IActionResult> ByExam(Guid examId, CancellationToken cancellationToken)
     {
-        var materials = await sender.Send(new GetMaterialsByExamQuery(examId), cancellationToken);
+        var materials = await sender.Send(new GetMaterialsByExamQuery(examId, User.GetUserId()), cancellationToken);
         return Ok(materials);
     }
 }

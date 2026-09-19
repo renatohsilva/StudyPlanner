@@ -18,7 +18,7 @@ public class TopicsController(ISender sender) : ControllerBase
         try
         {
             var topicId = await sender.Send(
-                new CreateTopicCommand(request.SubjectId, request.ParentTopicId, request.Name, request.EstimatedIncidence),
+                new CreateTopicCommand(User.GetUserId(), request.SubjectId, request.ParentTopicId, request.Name, request.EstimatedIncidence),
                 cancellationToken);
 
             return CreatedAtAction(nameof(Create), new { id = topicId }, new { id = topicId });
@@ -32,7 +32,14 @@ public class TopicsController(ISender sender) : ControllerBase
     [HttpGet("{id:guid}/questions")]
     public async Task<IActionResult> Questions(Guid id, CancellationToken cancellationToken)
     {
-        var questions = await sender.Send(new GetQuestionsByTopicQuery(id, User.GetUserId()), cancellationToken);
-        return Ok(questions);
+        try
+        {
+            var questions = await sender.Send(new GetQuestionsByTopicQuery(id, User.GetUserId()), cancellationToken);
+            return Ok(questions);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
     }
 }

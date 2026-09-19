@@ -9,8 +9,12 @@ public class CreateTopicHandler(IStudyPlannerDbContext db) : IRequestHandler<Cre
 {
     public async Task<Guid> Handle(CreateTopicCommand request, CancellationToken cancellationToken)
     {
-        var subjectExists = await db.Subjects.AnyAsync(s => s.Id == request.SubjectId, cancellationToken);
-        if (!subjectExists) throw new KeyNotFoundException($"Subject {request.SubjectId} not found.");
+        var subjectOwned = await (
+            from subject in db.Subjects
+            join exam in db.Exams on subject.ExamId equals exam.Id
+            where subject.Id == request.SubjectId && exam.UserId == request.UserId
+            select subject.Id).AnyAsync(cancellationToken);
+        if (!subjectOwned) throw new KeyNotFoundException($"Subject {request.SubjectId} not found.");
 
         var topic = new Topic
         {

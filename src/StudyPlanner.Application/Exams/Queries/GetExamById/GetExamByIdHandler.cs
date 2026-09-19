@@ -9,7 +9,7 @@ public class GetExamByIdHandler(IStudyPlannerDbContext db) : IRequestHandler<Get
     public async Task<ExamDetailDto?> Handle(GetExamByIdQuery request, CancellationToken cancellationToken)
     {
         var exam = await db.Exams
-            .Where(e => e.Id == request.ExamId)
+            .Where(e => e.Id == request.ExamId && e.UserId == request.UserId)
             .Select(e => new ExamDetailDto(
                 e.Id,
                 e.Name,

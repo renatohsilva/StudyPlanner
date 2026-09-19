@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using StudyPlanner.Api.Common;
 using StudyPlanner.Application.Notices.Commands.ConfirmNoticeStructure;
 using StudyPlanner.Application.Notices.Commands.ProcessNotice;
 using StudyPlanner.Application.Notices.Commands.UploadNotice;
@@ -25,12 +26,13 @@ public class NoticesController(ISender sender) : ControllerBase
 
         try
         {
+            var userId = User.GetUserId();
             await using var stream = file.OpenReadStream();
-            var noticeId = await sender.Send(new UploadNoticeCommand(examId, file.FileName, stream), cancellationToken);
+            var noticeId = await sender.Send(new UploadNoticeCommand(userId, examId, file.FileName, stream), cancellationToken);
 
             await sender.Send(new ProcessNoticeCommand(noticeId), cancellationToken);
 
-            var status = await sender.Send(new GetNoticeStatusQuery(noticeId), cancellationToken);
+            var status = await sender.Send(new GetNoticeStatusQuery(noticeId, userId), cancellationToken);
             return Ok(status);
         }
         catch (KeyNotFoundException ex)
@@ -44,7 +46,7 @@ public class NoticesController(ISender sender) : ControllerBase
     {
         try
         {
-            var status = await sender.Send(new GetNoticeStatusQuery(noticeId), cancellationToken);
+            var status = await sender.Send(new GetNoticeStatusQuery(noticeId, User.GetUserId()), cancellationToken);
             return Ok(status);
         }
         catch (KeyNotFoundException ex)
@@ -59,7 +61,7 @@ public class NoticesController(ISender sender) : ControllerBase
     {
         try
         {
-            await sender.Send(new ConfirmNoticeStructureCommand(noticeId, structure), cancellationToken);
+            await sender.Send(new ConfirmNoticeStructureCommand(noticeId, User.GetUserId(), structure), cancellationToken);
             return NoContent();
         }
         catch (KeyNotFoundException ex)

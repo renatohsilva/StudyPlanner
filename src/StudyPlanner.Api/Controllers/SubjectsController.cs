@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using StudyPlanner.Api.Common;
 using StudyPlanner.Application.Subjects.Commands.CreateSubject;
 
 namespace StudyPlanner.Api.Controllers;
@@ -16,7 +17,7 @@ public class SubjectsController(ISender sender) : ControllerBase
         try
         {
             var subjectId = await sender.Send(
-                new CreateSubjectCommand(request.ExamId, request.Name, request.Weight),
+                new CreateSubjectCommand(User.GetUserId(), request.ExamId, request.Name, request.Weight),
                 cancellationToken);
 
             return CreatedAtAction(nameof(Create), new { id = subjectId }, new { id = subjectId });

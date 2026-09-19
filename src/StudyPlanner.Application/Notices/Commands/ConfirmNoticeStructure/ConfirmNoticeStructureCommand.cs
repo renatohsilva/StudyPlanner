@@ -7,4 +7,4 @@ namespace StudyPlanner.Application.Notices.Commands.ConfirmNoticeStructure;
 /// Materializa em Subject/Topic a estrutura extraída — possivelmente editada pelo usuário na tela
 /// de confirmação. É o único caminho pelo qual a saída do LLM vira dado real do sistema.
 /// </summary>
-public record ConfirmNoticeStructureCommand(Guid NoticeId, ExtractedExamStructure Structure) : IRequest;
+public record ConfirmNoticeStructureCommand(Guid NoticeId, Guid UserId, ExtractedExamStructure Structure) : IRequest;

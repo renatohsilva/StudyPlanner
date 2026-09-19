@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using StudyPlanner.Application.Common;
 using StudyPlanner.Application.Common.Interfaces;
 
 namespace StudyPlanner.Application.WeakPoints.Queries.GetWeakPoints;
@@ -12,8 +13,7 @@ public class GetWeakPointsHandler(IStudyPlannerDbContext db) : IRequestHandler<G
 {
     public async Task<IReadOnlyList<WeakPointDto>> Handle(GetWeakPointsQuery request, CancellationToken cancellationToken)
     {
-        var examExists = await db.Exams.AnyAsync(e => e.Id == request.ExamId, cancellationToken);
-        if (!examExists) throw new KeyNotFoundException($"Exam {request.ExamId} not found.");
+        await db.EnsureExamOwnedByAsync(request.ExamId, request.UserId, cancellationToken);
 
         var query =
             from mastery in db.TopicMasteries

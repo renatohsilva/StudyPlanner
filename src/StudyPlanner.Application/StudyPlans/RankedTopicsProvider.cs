@@ -24,7 +24,7 @@ public class RankedTopicsProvider(IStudyPlannerDbContext db)
     public async Task<IReadOnlyList<RankedTopicResult>> GetRankedTopicsAsync(
         Guid userId, Guid examId, CancellationToken cancellationToken)
     {
-        var exam = await db.Exams.FirstOrDefaultAsync(e => e.Id == examId, cancellationToken)
+        var exam = await db.Exams.FirstOrDefaultAsync(e => e.Id == examId && e.UserId == userId, cancellationToken)
             ?? throw new KeyNotFoundException($"Exam {examId} not found.");
 
         var today = DateOnly.FromDateTime(DateTime.UtcNow);

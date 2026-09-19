@@ -25,19 +25,26 @@ public class QuestionsController(ISender sender) : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create(CreateQuestionRequest request, CancellationToken cancellationToken)
     {
-        var questionId = await sender.Send(
-            new CreateQuestionCommand(
-                request.Statement,
-                request.AlternativesJson,
-                request.CorrectAnswer,
-                request.Source,
-                request.BoardId,
-                request.Year,
-                User.GetUserId(),
-                request.TopicIds),
-            cancellationToken);
+        try
+        {
+            var questionId = await sender.Send(
+                new CreateQuestionCommand(
+                    request.Statement,
+                    request.AlternativesJson,
+                    request.CorrectAnswer,
+                    request.Source,
+                    request.BoardId,
+                    request.Year,
+                    User.GetUserId(),
+                    request.TopicIds),
+                cancellationToken);
 
-        return CreatedAtAction(nameof(Create), new { id = questionId }, new { id = questionId });
+            return CreatedAtAction(nameof(Create), new { id = questionId }, new { id = questionId });
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
     }
 
     [HttpPost("{id:guid}/attempt")]

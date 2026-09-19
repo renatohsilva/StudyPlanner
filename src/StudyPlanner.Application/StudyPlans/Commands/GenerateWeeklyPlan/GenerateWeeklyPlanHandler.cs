@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using StudyPlanner.Application.Common;
 using StudyPlanner.Application.Common.Interfaces;
 using StudyPlanner.Domain.Entities;
 using StudyPlanner.Domain.Services;
@@ -16,8 +17,7 @@ public class GenerateWeeklyPlanHandler(IStudyPlannerDbContext db, RankedTopicsPr
 {
     public async Task<Guid> Handle(GenerateWeeklyPlanCommand request, CancellationToken cancellationToken)
     {
-        var examExists = await db.Exams.AnyAsync(e => e.Id == request.ExamId, cancellationToken);
-        if (!examExists) throw new KeyNotFoundException($"Exam {request.ExamId} not found.");
+        await db.EnsureExamOwnedByAsync(request.ExamId, request.UserId, cancellationToken);
 
         var availabilitySlots = await db.AvailabilitySlots
             .Where(a => a.UserId == request.UserId && a.ExamId == request.ExamId)

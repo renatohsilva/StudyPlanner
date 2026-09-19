@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using StudyPlanner.Application.Common;
 using StudyPlanner.Application.Common.Interfaces;
 using StudyPlanner.Domain.Entities;
 
@@ -9,8 +10,7 @@ public class SetAvailabilityHandler(IStudyPlannerDbContext db) : IRequestHandler
 {
     public async Task Handle(SetAvailabilityCommand request, CancellationToken cancellationToken)
     {
-        var examExists = await db.Exams.AnyAsync(e => e.Id == request.ExamId, cancellationToken);
-        if (!examExists) throw new KeyNotFoundException($"Exam {request.ExamId} not found.");
+        await db.EnsureExamOwnedByAsync(request.ExamId, request.UserId, cancellationToken);
 
         var existing = await db.AvailabilitySlots
             .Where(a => a.UserId == request.UserId && a.ExamId == request.ExamId)

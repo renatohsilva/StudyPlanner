@@ -1,5 +1,5 @@
 using MediatR;
-using Microsoft.EntityFrameworkCore;
+using StudyPlanner.Application.Common;
 using StudyPlanner.Application.Common.Interfaces;
 using StudyPlanner.Domain.Entities;
 
@@ -9,8 +9,7 @@ public class CreateSubjectHandler(IStudyPlannerDbContext db) : IRequestHandler<C
 {
     public async Task<Guid> Handle(CreateSubjectCommand request, CancellationToken cancellationToken)
     {
-        var examExists = await db.Exams.AnyAsync(e => e.Id == request.ExamId, cancellationToken);
-        if (!examExists) throw new KeyNotFoundException($"Exam {request.ExamId} not found.");
+        await db.EnsureExamOwnedByAsync(request.ExamId, request.UserId, cancellationToken);
 
         var subject = new Subject
         {

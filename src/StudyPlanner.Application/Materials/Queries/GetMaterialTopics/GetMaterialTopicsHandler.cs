@@ -9,6 +9,10 @@ public class GetMaterialTopicsHandler(IStudyPlannerDbContext db)
 {
     public async Task<IReadOnlyList<MaterialTopicResultDto>> Handle(GetMaterialTopicsQuery request, CancellationToken cancellationToken)
     {
+        var materialOwned = await db.StudyMaterials
+            .AnyAsync(m => m.Id == request.MaterialId && m.UserId == request.UserId, cancellationToken);
+        if (!materialOwned) throw new KeyNotFoundException($"StudyMaterial {request.MaterialId} not found.");
+
         var results = await (
                 from mt in db.MaterialTopics
                 where mt.MaterialId == request.MaterialId

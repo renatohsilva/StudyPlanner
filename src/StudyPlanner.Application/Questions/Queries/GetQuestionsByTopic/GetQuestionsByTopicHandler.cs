@@ -9,6 +9,14 @@ public class GetQuestionsByTopicHandler(IStudyPlannerDbContext db)
 {
     public async Task<IReadOnlyList<QuestionSummaryDto>> Handle(GetQuestionsByTopicQuery request, CancellationToken cancellationToken)
     {
+        var topicOwned = await (
+            from topic in db.Topics
+            join subject in db.Subjects on topic.SubjectId equals subject.Id
+            join exam in db.Exams on subject.ExamId equals exam.Id
+            where topic.Id == request.TopicId && exam.UserId == request.UserId
+            select topic.Id).AnyAsync(cancellationToken);
+        if (!topicOwned) throw new KeyNotFoundException($"Topic {request.TopicId} not found.");
+
         var questionIds = await db.QuestionTopics
             .Where(qt => qt.TopicId == request.TopicId)
             .Select(qt => qt.QuestionId)
