@@ -23,6 +23,9 @@ public interface IStudyPlannerDbContext
     DbSet<StudyPlanItem> StudyPlanItems { get; }
     DbSet<StudySession> StudySessions { get; }
     DbSet<Review> Reviews { get; }
+    DbSet<StudyMaterial> StudyMaterials { get; }
+    DbSet<MaterialChunk> MaterialChunks { get; }
+    DbSet<MaterialTopic> MaterialTopics { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }

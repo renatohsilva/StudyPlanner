@@ -53,6 +53,21 @@ Alternativa (útil em CI/produção): variável de ambiente `Llm__Anthropic__Api
 
 Outras opções configuráveis em `Llm:Anthropic` (`appsettings.json`): `Model` (default `claude-sonnet-5`), `BaseUrl`, `MaxTokens`.
 
+## Baixando o modelo de embeddings (importação de material do aluno)
+
+O pipeline de importação de material (`POST /api/exams/{id}/materials`) gera embeddings localmente com o modelo **all-MiniLM-L6-v2** via ONNX Runtime — sem custo, sem chamada externa. Os arquivos do modelo (~90MB) não vão para o git; baixe uma vez:
+
+```bash
+mkdir -p src/StudyPlanner.Api/models/all-MiniLM-L6-v2
+cd src/StudyPlanner.Api/models/all-MiniLM-L6-v2
+curl -L -o model.onnx "https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/onnx/model.onnx"
+curl -L -o vocab.txt "https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/vocab.txt"
+```
+
+Os caminhos são configuráveis em `Embeddings:ModelPath`/`Embeddings:VocabPath` (`appsettings.json`) — por padrão apontam para essa pasta. Sem os arquivos, o upload de material falha de forma controlada (`StudyMaterial.Status = Failed`) explicando o que falta.
+
+O threshold de relevância material↔tópico (`ProcessMaterialHandler.RelevanceThreshold = 0.5`) foi calibrado empiricamente: embeddings BERT-family têm similaridade "de base" alta entre frases quaisquer do mesmo idioma, então um corte baixo (ex. 0.35) deixa passar tópicos não relacionados. Ajuste se notar falsos positivos/negativos.
+
 ## Estrutura
 
 ```

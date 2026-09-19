@@ -9,6 +9,9 @@
 # StudyPlanner: PDFs de editais enviados localmente (IFileStorage local)
 src/StudyPlanner.Api/storage/
 
+# StudyPlanner: modelo ONNX de embeddings (baixado localmente, ver README)
+src/StudyPlanner.Api/models/
+
 # User-specific files
 *.rsuser
 *.suo

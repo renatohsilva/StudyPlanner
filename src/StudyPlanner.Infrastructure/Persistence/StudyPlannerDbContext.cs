@@ -21,9 +21,13 @@ public class StudyPlannerDbContext(DbContextOptions<StudyPlannerDbContext> optio
     public DbSet<StudyPlanItem> StudyPlanItems => Set<StudyPlanItem>();
     public DbSet<StudySession> StudySessions => Set<StudySession>();
     public DbSet<Review> Reviews => Set<Review>();
+    public DbSet<StudyMaterial> StudyMaterials => Set<StudyMaterial>();
+    public DbSet<MaterialChunk> MaterialChunks => Set<MaterialChunk>();
+    public DbSet<MaterialTopic> MaterialTopics => Set<MaterialTopic>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.HasPostgresExtension("vector");
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(StudyPlannerDbContext).Assembly);
     }
 }

@@ -1,0 +1,51 @@
+<div class="page">
+  <h1>Meus materiais</h1>
+  <p class="hint">
+    Envie apostilas, resumos ou aulas em PDF. O sistema relaciona automaticamente cada material aos
+    tópicos do edital que ele cobre, usando embeddings locais (sem custo de IA).
+  </p>
+
+  @if (errorMessage()) {
+    <p class="error">{{ errorMessage() }}</p>
+  }
+
+  <section class="card">
+    <h2>Novo material</h2>
+    <div class="upload-row">
+      <input type="file" accept="application/pdf" (change)="onFileSelected($event)" />
+      <button (click)="upload()" [disabled]="!selectedFile() || uploading()">
+        {{ uploading() ? 'Processando...' : 'Enviar' }}
+      </button>
+    </div>
+  </section>
+
+  @for (material of materials(); track material.id) {
+    <section class="card material">
+      <div class="material-header">
+        <h3>{{ material.name }}</h3>
+        <span class="badge" [class.processed]="material.status === 'Processed'" [class.failed]="material.status === 'Failed'">
+          {{ material.status }}
+        </span>
+      </div>
+
+      @if (material.status === 'Failed') {
+        <p class="error">{{ material.errorMessage }}</p>
+      }
+
+      @if (material.status === 'Processed') {
+        @if ((topicsByMaterial()[material.id] ?? []).length === 0) {
+          <p class="hint">Nenhum tópico do edital foi identificado neste material.</p>
+        } @else {
+          <ul class="topic-links">
+            @for (topic of topicsByMaterial()[material.id]; track topic.topicId) {
+              <li>
+                <span>{{ topic.topicName }} <span class="subject-name">({{ topic.subjectName }})</span></span>
+                <span class="relevance">{{ relevancePercent(topic.relevanceScore) }}% relevância</span>
+              </li>
+            }
+          </ul>
+        }
+      }
+    </section>
+  }
+</div>
