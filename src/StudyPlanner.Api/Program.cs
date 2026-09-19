@@ -133,3 +133,7 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+// Expõe a classe Program gerada pelos top-level statements pra WebApplicationFactory<Program>
+// (testes de integração) conseguir referenciá-la.
+public partial class Program;
