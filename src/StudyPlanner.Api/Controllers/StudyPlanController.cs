@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using StudyPlanner.Api.Common;
 using StudyPlanner.Application.StudyPlans.Commands.GenerateWeeklyPlan;
 using StudyPlanner.Application.StudyPlans.Queries.GetActiveWeeklyPlan;
 using StudyPlanner.Application.StudyPlans.Queries.GetTodayPlan;
@@ -10,17 +11,17 @@ namespace StudyPlanner.Api.Controllers;
 [Route("api/study-plan")]
 public class StudyPlanController(ISender sender) : ControllerBase
 {
-    public record GenerateWeeklyPlanRequest(Guid UserId, DateOnly WeekStartDate);
+    public record GenerateWeeklyPlanRequest(DateOnly WeekStartDate);
 
     [HttpGet("today")]
     public async Task<IActionResult> Today(
-        [FromQuery] Guid userId,
         [FromQuery] Guid examId,
         [FromQuery] int top,
         CancellationToken cancellationToken)
     {
         try
         {
+            var userId = User.GetUserId();
             var query = top > 0
                 ? new GetTodayPlanQuery(userId, examId, top)
                 : new GetTodayPlanQuery(userId, examId);
@@ -40,7 +41,7 @@ public class StudyPlanController(ISender sender) : ControllerBase
         try
         {
             var planId = await sender.Send(
-                new GenerateWeeklyPlanCommand(request.UserId, examId, request.WeekStartDate),
+                new GenerateWeeklyPlanCommand(User.GetUserId(), examId, request.WeekStartDate),
                 cancellationToken);
             return Ok(new { id = planId });
         }
@@ -55,9 +56,9 @@ public class StudyPlanController(ISender sender) : ControllerBase
     }
 
     [HttpGet("~/api/exams/{examId:guid}/study-plan")]
-    public async Task<IActionResult> GetWeekly(Guid examId, [FromQuery] Guid userId, CancellationToken cancellationToken)
+    public async Task<IActionResult> GetWeekly(Guid examId, CancellationToken cancellationToken)
     {
-        var plan = await sender.Send(new GetActiveWeeklyPlanQuery(userId, examId), cancellationToken);
+        var plan = await sender.Send(new GetActiveWeeklyPlanQuery(User.GetUserId(), examId), cancellationToken);
         return Ok(plan);
     }
 }

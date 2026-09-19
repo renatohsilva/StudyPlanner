@@ -1,13 +1,15 @@
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using StudyPlanner.Application.Common.Interfaces;
 using StudyPlanner.Domain.Entities;
+using StudyPlanner.Infrastructure.Auth;
 
 namespace StudyPlanner.Infrastructure.Persistence;
 
 public class StudyPlannerDbContext(DbContextOptions<StudyPlannerDbContext> options)
-    : DbContext(options), IStudyPlannerDbContext
+    : IdentityDbContext<ApplicationUser, IdentityRole<Guid>, Guid>(options), IStudyPlannerDbContext
 {
-    public DbSet<User> Users => Set<User>();
     public DbSet<Board> Boards => Set<Board>();
     public DbSet<Exam> Exams => Set<Exam>();
     public DbSet<Notice> Notices => Set<Notice>();
@@ -28,6 +30,7 @@ public class StudyPlannerDbContext(DbContextOptions<StudyPlannerDbContext> optio
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        base.OnModelCreating(modelBuilder);
         modelBuilder.HasPostgresExtension("vector");
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(StudyPlannerDbContext).Assembly);
     }

@@ -1,11 +1,16 @@
+using System.Text;
 using System.Text.Json.Serialization;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using StudyPlanner.Application.Common.Interfaces;
 using StudyPlanner.Application.Exams.Commands.CreateExam;
+using StudyPlanner.Application.StudyPlans;
+using StudyPlanner.Infrastructure.Auth;
 using StudyPlanner.Infrastructure.Embeddings;
 using StudyPlanner.Infrastructure.Llm;
 using StudyPlanner.Infrastructure.Pdf;
-using StudyPlanner.Application.StudyPlans;
 using StudyPlanner.Infrastructure.Persistence;
 using StudyPlanner.Infrastructure.Storage;
 
@@ -47,6 +52,56 @@ builder.Services.AddScoped<RankedTopicsProvider>();
 
 builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(CreateExamCommand).Assembly));
 
+// Auth: ASP.NET Identity (senha, hash, etc.) + JWT Bearer. A chave de assinatura vem de
+// Jwt:Secret via user-secrets (mesmo padrão da chave da Anthropic) — nunca de appsettings.json.
+builder.Services
+    .AddIdentityCore<ApplicationUser>(options =>
+    {
+        options.Password.RequiredLength = 6;
+        options.Password.RequireNonAlphanumeric = false;
+        options.Password.RequireUppercase = false;
+        options.User.RequireUniqueEmail = true;
+    })
+    .AddRoles<IdentityRole<Guid>>()
+    .AddEntityFrameworkStores<StudyPlannerDbContext>();
+
+builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection("Jwt"));
+builder.Services.AddScoped<TokenService>();
+
+var jwtOptions = builder.Configuration.GetSection("Jwt").Get<JwtOptions>() ?? new JwtOptions();
+if (string.IsNullOrWhiteSpace(jwtOptions.Secret) || jwtOptions.Secret.Length < 32)
+{
+    throw new InvalidOperationException(
+        "Jwt:Secret não configurado (ou curto demais — mínimo 32 caracteres). Como toda a API depende de " +
+        "autenticação, um segredo fraco ou ausente compromete o sistema inteiro: configure via " +
+        "'dotnet user-secrets set \"Jwt:Secret\" \"<valor aleatório de 32+ caracteres>\"' (ver README).");
+}
+
+builder.Services
+    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtOptions.Issuer,
+            ValidAudience = jwtOptions.Audience,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Secret))
+        };
+    });
+
+// Autenticado por padrão em todo endpoint — só quem tem [AllowAnonymous] (registro/login) escapa disso.
+// Mais seguro que anotar [Authorize] manualmente em cada controller novo.
+builder.Services.AddAuthorization(options =>
+{
+    options.FallbackPolicy = new Microsoft.AspNetCore.Authorization.AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build();
+});
+
 const string DevCorsPolicy = "DevCors";
 builder.Services.AddCors(options =>
 {
@@ -65,6 +120,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

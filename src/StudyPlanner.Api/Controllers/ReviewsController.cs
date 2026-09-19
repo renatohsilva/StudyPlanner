@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using StudyPlanner.Api.Common;
 using StudyPlanner.Application.Reviews.Queries.GetPendingReviews;
 
 namespace StudyPlanner.Api.Controllers;
@@ -9,9 +10,9 @@ namespace StudyPlanner.Api.Controllers;
 public class ReviewsController(ISender sender) : ControllerBase
 {
     [HttpGet("pending")]
-    public async Task<IActionResult> Pending([FromQuery] Guid userId, [FromQuery] Guid? examId, CancellationToken cancellationToken)
+    public async Task<IActionResult> Pending([FromQuery] Guid? examId, CancellationToken cancellationToken)
     {
-        var reviews = await sender.Send(new GetPendingReviewsQuery(userId, examId), cancellationToken);
+        var reviews = await sender.Send(new GetPendingReviewsQuery(User.GetUserId(), examId), cancellationToken);
         return Ok(reviews);
     }
 }

@@ -53,6 +53,21 @@ Alternativa (útil em CI/produção): variável de ambiente `Llm__Anthropic__Api
 
 Outras opções configuráveis em `Llm:Anthropic` (`appsettings.json`): `Model` (default `claude-sonnet-5`), `BaseUrl`, `MaxTokens`.
 
+## Configurando autenticação (JWT)
+
+A API usa ASP.NET Identity + JWT. Todo endpoint exige um token válido por padrão (política de fallback em `Program.cs`), exceto `POST /api/auth/register` e `POST /api/auth/login`. A chave de assinatura do token **precisa** ser configurada — a API recusa iniciar sem ela (segredo fraco/ausente comprometeria a autenticação inteira):
+
+```bash
+cd src/StudyPlanner.Api
+dotnet user-secrets set "Jwt:Secret" "$(openssl rand -base64 48)"
+```
+
+(qualquer string aleatória com 32+ caracteres serve; o comando acima só é uma forma conveniente de gerar uma). Outras opções em `Jwt` (`appsettings.json`): `Issuer`, `Audience`, `ExpiryMinutes` (default 7 dias).
+
+No frontend, o token fica no `localStorage` (`AuthService`) e é anexado automaticamente a cada requisição via interceptor; um 401 desloga e redireciona para `/login`.
+
+**Limitação conhecida:** os endpoints ainda não verificam se o usuário autenticado é o *dono* do concurso/recurso que está acessando (ex.: `GET /api/exams/{id}` não confere se `{id}` pertence ao usuário do token) — a autenticação garante *quem* está falando, mas falta a checagem de propriedade (autorização por recurso) em cima disso. Não é um problema para uso solo local, mas precisa ser resolvido antes de expor o sistema para múltiplos usuários de verdade.
+
 ## Baixando o modelo de embeddings (importação de material do aluno)
 
 O pipeline de importação de material (`POST /api/exams/{id}/materials`) gera embeddings localmente com o modelo **all-MiniLM-L6-v2** via ONNX Runtime — sem custo, sem chamada externa. Os arquivos do modelo (~90MB) não vão para o git; baixe uma vez:

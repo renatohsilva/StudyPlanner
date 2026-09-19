@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using StudyPlanner.Api.Common;
 using StudyPlanner.Application.Questions.Commands.AttemptQuestion;
 using StudyPlanner.Application.Questions.Commands.CreateQuestion;
 using StudyPlanner.Domain.Entities;
@@ -17,10 +18,9 @@ public class QuestionsController(ISender sender) : ControllerBase
         QuestionSource Source,
         Guid? BoardId,
         int? Year,
-        Guid? CreatedByUserId,
         IReadOnlyList<Guid> TopicIds);
 
-    public record AttemptQuestionRequest(Guid UserId, string ChosenAnswer, int? TimeSpentSeconds);
+    public record AttemptQuestionRequest(string ChosenAnswer, int? TimeSpentSeconds);
 
     [HttpPost]
     public async Task<IActionResult> Create(CreateQuestionRequest request, CancellationToken cancellationToken)
@@ -33,7 +33,7 @@ public class QuestionsController(ISender sender) : ControllerBase
                 request.Source,
                 request.BoardId,
                 request.Year,
-                request.CreatedByUserId,
+                User.GetUserId(),
                 request.TopicIds),
             cancellationToken);
 
@@ -46,7 +46,7 @@ public class QuestionsController(ISender sender) : ControllerBase
         try
         {
             var result = await sender.Send(
-                new AttemptQuestionCommand(id, request.UserId, request.ChosenAnswer, request.TimeSpentSeconds),
+                new AttemptQuestionCommand(id, User.GetUserId(), request.ChosenAnswer, request.TimeSpentSeconds),
                 cancellationToken);
 
             return Ok(result);

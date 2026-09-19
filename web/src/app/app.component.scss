@@ -22,4 +22,23 @@
       color: #3a4ad6;
     }
   }
+
+  .spacer {
+    flex: 1;
+  }
+
+  .user-name {
+    font-size: 0.85rem;
+    color: #6b7280;
+  }
+
+  button.link {
+    background: none;
+    border: none;
+    color: #c0392b;
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    padding: 0;
+  }
 }

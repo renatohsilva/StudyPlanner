@@ -1,0 +1,28 @@
+<div class="auth-page">
+  <form class="auth-card" (ngSubmit)="submit()">
+    <h1>Criar conta</h1>
+
+    @if (errorMessage()) {
+      <p class="error">{{ errorMessage() }}</p>
+    }
+
+    <label>
+      Nome
+      <input type="text" name="name" [(ngModel)]="name" required />
+    </label>
+    <label>
+      E-mail
+      <input type="email" name="email" [(ngModel)]="email" required />
+    </label>
+    <label>
+      Senha
+      <input type="password" name="password" [(ngModel)]="password" minlength="6" required />
+    </label>
+
+    <button type="submit" class="primary" [disabled]="loading()">
+      {{ loading() ? 'Criando...' : 'Criar conta' }}
+    </button>
+
+    <p class="switch">Já tem conta? <a routerLink="/login">Entrar</a></p>
+  </form>
+</div>

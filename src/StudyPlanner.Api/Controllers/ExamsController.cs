@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using StudyPlanner.Api.Common;
 using StudyPlanner.Application.Exams.Commands.CreateExam;
 using StudyPlanner.Application.Exams.Queries.GetExamById;
 using StudyPlanner.Application.Metrics.Queries.GetExamMetrics;
@@ -11,13 +12,13 @@ namespace StudyPlanner.Api.Controllers;
 [Route("api/exams")]
 public class ExamsController(ISender sender) : ControllerBase
 {
-    public record CreateExamRequest(Guid UserId, Guid? BoardId, string Name, DateOnly ExamDate);
+    public record CreateExamRequest(Guid? BoardId, string Name, DateOnly ExamDate);
 
     [HttpPost]
     public async Task<IActionResult> Create(CreateExamRequest request, CancellationToken cancellationToken)
     {
         var examId = await sender.Send(
-            new CreateExamCommand(request.UserId, request.BoardId, request.Name, request.ExamDate),
+            new CreateExamCommand(User.GetUserId(), request.BoardId, request.Name, request.ExamDate),
             cancellationToken);
 
         return CreatedAtAction(nameof(GetById), new { id = examId }, new { id = examId });
@@ -31,10 +32,11 @@ public class ExamsController(ISender sender) : ControllerBase
     }
 
     [HttpGet("{id:guid}/weak-points")]
-    public async Task<IActionResult> WeakPoints(Guid id, [FromQuery] Guid userId, [FromQuery] int top, CancellationToken cancellationToken)
+    public async Task<IActionResult> WeakPoints(Guid id, [FromQuery] int top, CancellationToken cancellationToken)
     {
         try
         {
+            var userId = User.GetUserId();
             var query = top > 0 ? new GetWeakPointsQuery(userId, id, top) : new GetWeakPointsQuery(userId, id);
             var weakPoints = await sender.Send(query, cancellationToken);
             return Ok(weakPoints);
@@ -46,11 +48,11 @@ public class ExamsController(ISender sender) : ControllerBase
     }
 
     [HttpGet("{id:guid}/metrics")]
-    public async Task<IActionResult> Metrics(Guid id, [FromQuery] Guid userId, CancellationToken cancellationToken)
+    public async Task<IActionResult> Metrics(Guid id, CancellationToken cancellationToken)
     {
         try
         {
-            var metrics = await sender.Send(new GetExamMetricsQuery(userId, id), cancellationToken);
+            var metrics = await sender.Send(new GetExamMetricsQuery(User.GetUserId(), id), cancellationToken);
             return Ok(metrics);
         }
         catch (KeyNotFoundException ex)
