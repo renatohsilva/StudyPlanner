@@ -71,18 +71,20 @@ Todo endpoint que lê ou escreve um recurso ligado a um concurso (exame, discipl
 
 ## Baixando o modelo de embeddings (importação de material do aluno)
 
-O pipeline de importação de material (`POST /api/exams/{id}/materials`) gera embeddings localmente com o modelo **all-MiniLM-L6-v2** via ONNX Runtime — sem custo, sem chamada externa. Os arquivos do modelo (~90MB) não vão para o git; baixe uma vez:
+O pipeline de importação de material (`POST /api/exams/{id}/materials`) gera embeddings localmente com o modelo **distiluse-base-multilingual-cased-v2** (DistilBERT, 50+ idiomas incluindo português) via ONNX Runtime — sem custo, sem chamada externa. Os arquivos do modelo (~540MB) não vão para o git; baixe uma vez:
 
 ```bash
-mkdir -p src/StudyPlanner.Api/models/all-MiniLM-L6-v2
-cd src/StudyPlanner.Api/models/all-MiniLM-L6-v2
-curl -L -o model.onnx "https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/onnx/model.onnx"
-curl -L -o vocab.txt "https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/resolve/main/vocab.txt"
+mkdir -p src/StudyPlanner.Api/models/distiluse-base-multilingual-cased-v2
+cd src/StudyPlanner.Api/models/distiluse-base-multilingual-cased-v2
+curl -L -o model.onnx "https://huggingface.co/sentence-transformers/distiluse-base-multilingual-cased-v2/resolve/main/onnx/model.onnx"
+curl -L -o vocab.txt "https://huggingface.co/sentence-transformers/distiluse-base-multilingual-cased-v2/resolve/main/vocab.txt"
 ```
 
 Os caminhos são configuráveis em `Embeddings:ModelPath`/`Embeddings:VocabPath` (`appsettings.json`) — por padrão apontam para essa pasta. Sem os arquivos, o upload de material falha de forma controlada (`StudyMaterial.Status = Failed`) explicando o que falta.
 
-O threshold de relevância material↔tópico (`ProcessMaterialHandler.RelevanceThreshold = 0.5`) foi calibrado empiricamente: embeddings BERT-family têm similaridade "de base" alta entre frases quaisquer do mesmo idioma, então um corte baixo (ex. 0.35) deixa passar tópicos não relacionados. Ajuste se notar falsos positivos/negativos. **Importante:** o modelo é majoritariamente treinado em inglês — vincular um material em outro idioma (português, por exemplo) a tópicos no mesmo idioma funciona bem (validado com score ~0.70 num teste real), mas comparar material e tópico em idiomas diferentes praticamente não gera vínculo.
+**Histórico:** a primeira versão usava all-MiniLM-L6-v2 (90MB), majoritariamente treinado em inglês — funcionava bem em inglês mas não vinculava material em português a tópicos em português (score ~0 entre idiomas diferentes). Trocado pro distiluse multilíngue, que é "cased" (preserva maiúsculas/acentos — importante em português) e ~6x maior. `Embeddings:DoLowerCase`/`StripAccents`/`UseTokenTypeIds` (`appsettings.json`) existem justamente pra suportar essa troca de modelo sem mexer em código — ajuste se trocar de modelo de novo.
+
+O threshold de relevância material↔tópico (`ProcessMaterialHandler.RelevanceThreshold = 0.25`) foi recalibrado empiricamente pro modelo atual: a escala absoluta de similaridade mudou com a troca de modelo (não é comparável ao threshold antigo de 0.5 do MiniLM). Num teste real em português, chunks de ~800 caracteres pontuaram ~0.32-0.34 contra o tópico correspondente e ~0.14 contra um tópico não relacionado — 0.25 separa os dois casos com margem. Ajuste se notar falsos positivos/negativos, e recalibre sempre que trocar de modelo (a escala não é portável entre modelos diferentes).
 
 ### Importando vídeos do YouTube e links
 

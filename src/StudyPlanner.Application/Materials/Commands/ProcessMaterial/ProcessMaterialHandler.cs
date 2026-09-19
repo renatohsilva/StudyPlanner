@@ -19,12 +19,13 @@ public class ProcessMaterialHandler(
     IEmbeddingGenerator embeddingGenerator) : IRequestHandler<ProcessMaterialCommand>
 {
     /// <summary>
-    /// Calibrado empiricamente: embeddings BERT-family têm similaridade "de base" alta entre
-    /// frases quaisquer do mesmo idioma (anisotropia) — 0.35 deixava passar tópicos não
-    /// relacionados. 0.5 separou corretamente tópicos cobertos (~0.53-0.55) de não cobertos
-    /// (~0.45) num teste real. Ajustar se começar a gerar falsos negativos/positivos em produção.
+    /// Recalibrado ao trocar para o modelo multilíngue (distiluse-base-multilingual-cased-v2):
+    /// a escala absoluta de similaridade é diferente do all-MiniLM-L6-v2 anterior — chunks reais de
+    /// ~800 caracteres cobrindo um tópico específico pontuaram ~0.32-0.34 contra o tópico
+    /// correspondente e ~0.14 contra um tópico não relacionado, num teste real em português.
+    /// 0.25 separa os dois casos com margem razoável. Ajustar se notar falsos positivos/negativos.
     /// </summary>
-    private const float RelevanceThreshold = 0.5f;
+    private const float RelevanceThreshold = 0.25f;
 
     public async Task Handle(ProcessMaterialCommand request, CancellationToken cancellationToken)
     {

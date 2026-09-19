@@ -6,9 +6,11 @@ using StudyPlanner.Application.Common.Interfaces;
 namespace StudyPlanner.Infrastructure.Embeddings;
 
 /// <summary>
-/// Embeddings semânticos locais via all-MiniLM-L6-v2 (ONNX Runtime) — zero custo, zero chamada
-/// externa. Tokenização WordPiece implementada à mão (BertWordPieceTokenizer); pooling por média
-/// ponderada pela attention mask + normalização L2, como o modelo foi treinado.
+/// Embeddings semânticos locais (ONNX Runtime) — zero custo, zero chamada externa. Modelo padrão é
+/// o distiluse-base-multilingual-cased-v2 (50+ idiomas, incluindo português — trocado do
+/// all-MiniLM-L6-v2 original porque esse era majoritariamente inglês e não vinculava material em
+/// português a tópicos em português). Tokenização WordPiece implementada à mão
+/// (BertWordPieceTokenizer); pooling por média ponderada pela attention mask + normalização L2.
 /// </summary>
 public sealed class OnnxEmbeddingGenerator : IEmbeddingGenerator, IDisposable
 {
@@ -25,7 +27,7 @@ public sealed class OnnxEmbeddingGenerator : IEmbeddingGenerator, IDisposable
             if (!File.Exists(_options.ModelPath))
             {
                 throw new InvalidOperationException(
-                    $"Modelo de embeddings não encontrado em '{_options.ModelPath}'. Baixe o all-MiniLM-L6-v2 " +
+                    $"Modelo de embeddings não encontrado em '{_options.ModelPath}'. Baixe o modelo configurado " +
                     "em formato ONNX (ver README) antes de importar materiais.");
             }
 
@@ -39,7 +41,7 @@ public sealed class OnnxEmbeddingGenerator : IEmbeddingGenerator, IDisposable
                 throw new InvalidOperationException($"Vocabulário do tokenizador não encontrado em '{_options.VocabPath}'.");
             }
 
-            return new BertWordPieceTokenizer(_options.VocabPath);
+            return new BertWordPieceTokenizer(_options.VocabPath, _options.DoLowerCase, _options.StripAccents);
         });
     }
 
@@ -50,14 +52,18 @@ public sealed class OnnxEmbeddingGenerator : IEmbeddingGenerator, IDisposable
 
         var inputIdsTensor = new DenseTensor<long>(inputIds, [1, seqLen]);
         var attentionMaskTensor = new DenseTensor<long>(attentionMask, [1, seqLen]);
-        var tokenTypeIdsTensor = new DenseTensor<long>(tokenTypeIds, [1, seqLen]);
 
         var inputs = new List<NamedOnnxValue>
         {
             NamedOnnxValue.CreateFromTensor("input_ids", inputIdsTensor),
-            NamedOnnxValue.CreateFromTensor("attention_mask", attentionMaskTensor),
-            NamedOnnxValue.CreateFromTensor("token_type_ids", tokenTypeIdsTensor)
+            NamedOnnxValue.CreateFromTensor("attention_mask", attentionMaskTensor)
         };
+
+        if (_options.UseTokenTypeIds)
+        {
+            var tokenTypeIdsTensor = new DenseTensor<long>(tokenTypeIds, [1, seqLen]);
+            inputs.Add(NamedOnnxValue.CreateFromTensor("token_type_ids", tokenTypeIdsTensor));
+        }
 
         using var results = _session.Value.Run(inputs);
         var lastHiddenState = results.First(r => r.Name == "last_hidden_state").AsTensor<float>();

@@ -4,9 +4,11 @@ using System.Text;
 namespace StudyPlanner.Infrastructure.Embeddings;
 
 /// <summary>
-/// Tokenizador WordPiece (BERT-uncased) implementado à mão a partir do vocab.txt do modelo —
-/// sem depender de nenhuma lib externa de tokenização. Segue o algoritmo padrão: lowercase,
-/// remoção de acentos, split em pontuação, depois "maior substring conhecida primeiro" por palavra.
+/// Tokenizador WordPiece (BERT) implementado à mão a partir do vocab.txt do modelo — sem depender
+/// de nenhuma lib externa de tokenização. Segue o algoritmo padrão: normalização (lowercase +
+/// remoção de acentos, configurável — modelos "cased" multilíngues precisam preservar maiúsculas e
+/// acentos, que carregam significado em português), split em pontuação, depois "maior substring
+/// conhecida primeiro" por palavra.
 /// </summary>
 public sealed class BertWordPieceTokenizer
 {
@@ -17,9 +19,13 @@ public sealed class BertWordPieceTokenizer
     private const int MaxInputCharsPerWord = 200;
 
     private readonly Dictionary<string, int> _vocab;
+    private readonly bool _doLowerCase;
+    private readonly bool _stripAccents;
 
-    public BertWordPieceTokenizer(string vocabPath)
+    public BertWordPieceTokenizer(string vocabPath, bool doLowerCase = true, bool stripAccents = true)
     {
+        _doLowerCase = doLowerCase;
+        _stripAccents = stripAccents;
         _vocab = File.ReadAllLines(vocabPath)
             .Select((line, index) => (line, index))
             .ToDictionary(x => x.line, x => x.index);
@@ -56,9 +62,12 @@ public sealed class BertWordPieceTokenizer
         return (inputIds.ToArray(), attentionMask.ToArray(), tokenTypeIds);
     }
 
-    private static List<string> BasicTokenize(string text)
+    private List<string> BasicTokenize(string text)
     {
-        var normalized = StripAccents(text.ToLowerInvariant());
+        var normalized = text;
+        if (_doLowerCase) normalized = normalized.ToLowerInvariant();
+        if (_stripAccents) normalized = StripAccents(normalized);
+
         var tokens = new List<string>();
         var buffer = new StringBuilder();
 

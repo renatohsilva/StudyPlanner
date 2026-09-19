@@ -8,8 +8,8 @@ namespace StudyPlanner.Infrastructure.Persistence.Configurations;
 
 public class MaterialChunkConfiguration : IEntityTypeConfiguration<MaterialChunk>
 {
-    /// <summary>Dimensão do all-MiniLM-L6-v2. Ver OnnxEmbeddingGenerator.</summary>
-    public const int EmbeddingDimensions = 384;
+    /// <summary>Dimensão do distiluse-base-multilingual-cased-v2 (DistilBERT). Ver OnnxEmbeddingGenerator.</summary>
+    public const int EmbeddingDimensions = 768;
 
     public void Configure(EntityTypeBuilder<MaterialChunk> builder)
     {
