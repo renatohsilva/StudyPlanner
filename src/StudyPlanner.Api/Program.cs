@@ -124,8 +124,12 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
     app.UseCors(DevCorsPolicy);
 }
-
-app.UseHttpsRedirection();
+else
+{
+    // Em dev, o redirect pra https derruba o front (Angular fala http://localhost:4200 com a API
+    // em http, sem certificado confiável) — só força https fora de Development.
+    app.UseHttpsRedirection();
+}
 
 app.UseAuthentication();
 app.UseAuthorization();

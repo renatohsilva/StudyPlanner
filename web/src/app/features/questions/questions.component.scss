@@ -1,13 +1,3 @@
-select,
-textarea {
-  font-family: inherit;
-  font-size: 0.95rem;
-  padding: 8px 10px;
-  border: 1px solid #cfd3dc;
-  border-radius: 6px;
-  width: 100%;
-}
-
 .practice-header {
   display: flex;
   align-items: center;
@@ -22,40 +12,44 @@ textarea {
 
 .count {
   font-size: 0.78rem;
-  color: #9ca3af;
+  color: var(--color-text-faint);
 }
 
 .statement {
   font-size: 0.95rem;
-  margin-bottom: 16px;
+  margin-bottom: var(--space-4);
   line-height: 1.5;
-}
-
-.hint {
-  color: #6b7280;
-  font-size: 0.85rem;
 }
 
 .alternatives {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin-bottom: 16px;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
 }
 
 .alternative {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 10px;
-  border: 1px solid #e2e4e9;
-  border-radius: 6px;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
   cursor: pointer;
   font-size: 0.9rem;
+  transition: border-color var(--transition-fast), background var(--transition-fast);
+
+  &:hover {
+    border-color: var(--color-accent);
+  }
 
   &.disabled {
     cursor: default;
     opacity: 0.75;
+
+    &:hover {
+      border-color: var(--color-border);
+    }
   }
 
   input {
@@ -65,27 +59,27 @@ textarea {
 
 .result {
   padding: 10px 14px;
-  border-radius: 6px;
+  border-radius: var(--radius-sm);
   font-weight: 600;
   font-size: 0.9rem;
-  margin-bottom: 12px;
+  margin-bottom: var(--space-3);
 
   &.correct {
-    background: #eafbea;
-    color: #15803d;
+    background: var(--color-success-bg);
+    color: var(--color-success);
   }
 
   &.incorrect {
-    background: #fef2f2;
-    color: #c0392b;
+    background: var(--color-danger-bg);
+    color: var(--color-danger);
   }
 }
 
 .alt-row {
   display: flex;
   align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
 
   .alt-key {
     font-weight: 700;
@@ -95,12 +89,4 @@ textarea {
   input {
     flex: 1;
   }
-}
-
-.link-danger {
-  background: none;
-  color: #c0392b;
-  font-weight: 600;
-  font-size: 0.8rem;
-  padding: 4px 8px;
 }

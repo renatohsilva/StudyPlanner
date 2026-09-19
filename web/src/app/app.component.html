@@ -2,19 +2,19 @@
   <span class="brand">StudyPlanner</span>
 
   @if (authService.isAuthenticated()) {
-    <a routerLink="/exam-setup">Concurso</a>
-    <a routerLink="/dashboard">Hoje</a>
-    <a routerLink="/weekly-plan">Semana</a>
-    <a routerLink="/materials">Materiais</a>
-    <a routerLink="/questions">Questões</a>
+    <a routerLink="/exam-setup" routerLinkActive="active">Concurso</a>
+    <a routerLink="/dashboard" routerLinkActive="active">Hoje</a>
+    <a routerLink="/weekly-plan" routerLinkActive="active">Semana</a>
+    <a routerLink="/materials" routerLinkActive="active">Materiais</a>
+    <a routerLink="/questions" routerLinkActive="active">Questões</a>
 
     <span class="spacer"></span>
     <span class="user-name">{{ authService.name() }}</span>
     <button class="link" (click)="logout()">Sair</button>
   } @else {
     <span class="spacer"></span>
-    <a routerLink="/login">Entrar</a>
-    <a routerLink="/register">Criar conta</a>
+    <a routerLink="/login" routerLinkActive="active">Entrar</a>
+    <a routerLink="/register" routerLinkActive="active">Criar conta</a>
   }
 </nav>
 

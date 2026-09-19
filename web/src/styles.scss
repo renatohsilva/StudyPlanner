@@ -1,3 +1,52 @@
+:root {
+  // Neutros
+  --color-bg: #f8f9fb;
+  --color-surface: #ffffff;
+  --color-border: #e5e7eb;
+  --color-border-subtle: #f0f1f4;
+  --color-border-input: #d5d8e0;
+  --color-track: #eef0f3;
+
+  --color-text: #1f2430;
+  --color-text-secondary: #4a4f5c;
+  --color-text-muted: #6b7280;
+  --color-text-faint: #9ca3af;
+
+  // Accent
+  --color-accent: #4f46e5;
+  --color-accent-hover: #4338ca;
+  --color-accent-bg: #eef2ff;
+
+  // Semânticos
+  --color-success: #15803d;
+  --color-success-bg: #ecfdf5;
+  --color-warning: #b45309;
+  --color-warning-bg: #fffbeb;
+  --color-danger: #dc2626;
+  --color-danger-bg: #fef2f2;
+  --color-danger-border: #fecaca;
+
+  // Espaçamento
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+
+  // Formas
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
+
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04), 0 1px 1px rgba(15, 23, 42, 0.03);
+  --shadow-md: 0 8px 24px rgba(15, 23, 42, 0.08);
+
+  --transition-fast: 150ms ease;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -5,78 +54,135 @@
 body {
   margin: 0;
   font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  background: #f4f5f7;
-  color: #1f2430;
+  background: var(--color-bg);
+  color: var(--color-text);
+  -webkit-font-smoothing: antialiased;
 }
 
 .page {
   max-width: 760px;
   margin: 0 auto;
-  padding: 24px 16px 64px;
+  padding: var(--space-6) var(--space-4) var(--space-7);
 }
 
 h1 {
   font-size: 1.5rem;
-  margin-bottom: 16px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0 0 var(--space-5);
+}
+
+h2 {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0 0 var(--space-3);
 }
 
 .card {
-  background: #fff;
-  border: 1px solid #e2e4e9;
-  border-radius: 10px;
-  padding: 16px 20px;
-  margin-bottom: 16px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  padding: var(--space-5);
+  margin-bottom: var(--space-4);
 }
 
 .card.subject h3 {
-  margin: 0 0 8px;
+  margin: 0 0 var(--space-2);
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-2);
+}
+
+.hint {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  margin: 0 0 var(--space-4);
+  line-height: 1.5;
+
+  &.small {
+    font-size: 0.78rem;
+    margin: 0;
+  }
 }
 
 .badge {
-  font-size: 0.75rem;
-  font-weight: 600;
-  background: #eef1ff;
-  color: #3a4ad6;
-  border-radius: 999px;
-  padding: 2px 10px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  background: var(--color-accent-bg);
+  color: var(--color-accent);
+  border-radius: var(--radius-pill);
+  padding: 3px 10px;
+  white-space: nowrap;
+
+  &.review,
+  &.failed {
+    background: var(--color-danger-bg);
+    color: var(--color-danger);
+  }
+
+  &.processed,
+  &.correct {
+    background: var(--color-success-bg);
+    color: var(--color-success);
+  }
 }
 
 .topics {
   list-style: none;
   padding: 0;
-  margin: 0 0 12px;
+  margin: 0 0 var(--space-3);
 
   li {
     display: flex;
     justify-content: space-between;
-    padding: 6px 0;
-    border-bottom: 1px solid #f0f1f4;
+    padding: var(--space-2) 0;
+    border-bottom: 1px solid var(--color-border-subtle);
+
+    &:last-child {
+      border-bottom: none;
+    }
   }
 }
 
 form label {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: var(--space-1);
   font-size: 0.85rem;
   font-weight: 600;
-  color: #4a4f5c;
-  margin-bottom: 12px;
+  color: var(--color-text-secondary);
+  margin-bottom: var(--space-3);
 }
 
-input {
+input,
+select,
+textarea {
+  font-family: inherit;
   font-size: 0.95rem;
-  padding: 8px 10px;
-  border: 1px solid #cfd3dc;
-  border-radius: 6px;
+  padding: 9px 12px;
+  border: 1px solid var(--color-border-input);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+
+  &:focus-visible {
+    outline: none;
+    border-color: var(--color-accent);
+    box-shadow: 0 0 0 3px var(--color-accent-bg);
+  }
+}
+
+select,
+textarea {
+  width: 100%;
 }
 
 form.inline-form {
   display: flex;
-  gap: 8px;
+  gap: var(--space-2);
   align-items: center;
 
   input {
@@ -87,30 +193,92 @@ form.inline-form {
 button {
   cursor: pointer;
   border: none;
-  border-radius: 6px;
-  padding: 8px 16px;
+  border-radius: var(--radius-sm);
+  padding: 9px 16px;
   font-size: 0.9rem;
   font-weight: 600;
-  background: #e2e4e9;
-  color: #1f2430;
+  background: var(--color-border-subtle);
+  color: var(--color-text);
+  transition: background var(--transition-fast), opacity var(--transition-fast);
+
+  &:hover {
+    background: var(--color-border);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: default;
+  }
 
   &.primary {
-    background: #3a4ad6;
+    background: var(--color-accent);
     color: #fff;
     width: 100%;
     padding: 12px;
     font-size: 1rem;
+
+    &:hover {
+      background: var(--color-accent-hover);
+    }
+  }
+
+  &.secondary {
+    background: var(--color-accent-bg);
+    color: var(--color-accent);
+
+    &:hover {
+      background: var(--color-accent-bg);
+      opacity: 0.85;
+    }
+  }
+
+  &.link-danger {
+    background: none;
+    color: var(--color-danger);
+    font-weight: 600;
+    font-size: 0.8rem;
+    padding: 4px 8px;
+
+    &:hover {
+      background: var(--color-danger-bg);
+    }
   }
 }
 
 .error {
-  color: #c0392b;
+  color: var(--color-danger);
   font-weight: 600;
 }
 
 .divider {
   text-align: center;
-  color: #9ca3af;
+  color: var(--color-text-faint);
   font-size: 0.8rem;
-  margin: 8px 0 16px;
+  margin: var(--space-2) 0 var(--space-4);
+}
+
+// Barra de progresso reutilizada em dashboard/plano semanal
+.meter-track {
+  height: 8px;
+  background: var(--color-track);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+}
+
+.meter-fill {
+  height: 100%;
+  background: var(--color-accent);
+
+  &.mastery {
+    background: var(--color-success);
+  }
+
+  &.revision {
+    background: var(--color-warning);
+  }
 }
