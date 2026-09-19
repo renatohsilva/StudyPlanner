@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using StudyPlanner.Application.Exams.Commands.CreateExam;
 using StudyPlanner.Application.Exams.Queries.GetExamById;
+using StudyPlanner.Application.Metrics.Queries.GetExamMetrics;
 using StudyPlanner.Application.WeakPoints.Queries.GetWeakPoints;
 
 namespace StudyPlanner.Api.Controllers;
@@ -37,6 +38,20 @@ public class ExamsController(ISender sender) : ControllerBase
             var query = top > 0 ? new GetWeakPointsQuery(userId, id, top) : new GetWeakPointsQuery(userId, id);
             var weakPoints = await sender.Send(query, cancellationToken);
             return Ok(weakPoints);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+    }
+
+    [HttpGet("{id:guid}/metrics")]
+    public async Task<IActionResult> Metrics(Guid id, [FromQuery] Guid userId, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var metrics = await sender.Send(new GetExamMetricsQuery(userId, id), cancellationToken);
+            return Ok(metrics);
         }
         catch (KeyNotFoundException ex)
         {

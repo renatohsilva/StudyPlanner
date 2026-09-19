@@ -5,8 +5,10 @@ import { AppStateService } from '../../core/services/app-state.service';
 import { StudyPlanService } from '../../core/services/study-plan.service';
 import { StudySessionService } from '../../core/services/study-session.service';
 import { ReviewService } from '../../core/services/review.service';
+import { MetricsService } from '../../core/services/metrics.service';
 import { TodayPlan } from '../../core/models/study-plan.models';
 import { PendingReview, WeakPoint } from '../../core/models/review.models';
+import { ExamMetrics } from '../../core/models/metrics.models';
 
 @Component({
   selector: 'app-today-plan',
@@ -20,11 +22,15 @@ export class TodayPlanComponent implements OnInit {
   private readonly studyPlanService = inject(StudyPlanService);
   private readonly studySessionService = inject(StudySessionService);
   private readonly reviewService = inject(ReviewService);
+  private readonly metricsService = inject(MetricsService);
   private readonly router = inject(Router);
+
+  private examId!: string;
 
   readonly plan = signal<TodayPlan | null>(null);
   readonly pendingReviews = signal<PendingReview[]>([]);
   readonly weakPoints = signal<WeakPoint[]>([]);
+  readonly metrics = signal<ExamMetrics | null>(null);
   readonly loading = signal(true);
   readonly errorMessage = signal<string | null>(null);
   readonly loggedTopicIds = signal<Set<string>>(new Set());
@@ -35,10 +41,12 @@ export class TodayPlanComponent implements OnInit {
       this.router.navigate(['/exam-setup']);
       return;
     }
+    this.examId = examId;
 
     this.loadPlan(examId);
     this.loadReviews(examId);
     this.loadWeakPoints(examId);
+    this.loadMetrics(examId);
   }
 
   logSession(topicId: string): void {
@@ -51,6 +59,7 @@ export class TodayPlanComponent implements OnInit {
       })
       .subscribe(() => {
         this.loggedTopicIds.update((set) => new Set(set).add(topicId));
+        this.loadMetrics(this.examId);
       });
   }
 
@@ -81,6 +90,12 @@ export class TodayPlanComponent implements OnInit {
   private loadWeakPoints(examId: string): void {
     this.reviewService.getWeakPoints(examId, this.appState.userId()).subscribe({
       next: (weakPoints) => this.weakPoints.set(weakPoints)
+    });
+  }
+
+  private loadMetrics(examId: string): void {
+    this.metricsService.getExamMetrics(examId, this.appState.userId()).subscribe({
+      next: (metrics) => this.metrics.set(metrics)
     });
   }
 }
