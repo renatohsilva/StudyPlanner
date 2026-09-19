@@ -7,6 +7,7 @@ Sistema de organização e acompanhamento de estudos para concursos públicos. B
 - .NET SDK 10
 - Node.js 22+ (Angular CLI avisa sobre versão em Node < 24.15, mas funciona)
 - Docker Desktop
+- [yt-dlp](https://github.com/yt-dlp/yt-dlp) no PATH — só necessário para importar material a partir de vídeos do YouTube (`pip install yt-dlp` ou baixar o binário standalone). Sem ele, o resto do sistema funciona normalmente; só a importação de YouTube falha com uma mensagem clara.
 
 ## Rodando localmente
 
@@ -81,7 +82,13 @@ curl -L -o vocab.txt "https://huggingface.co/sentence-transformers/all-MiniLM-L6
 
 Os caminhos são configuráveis em `Embeddings:ModelPath`/`Embeddings:VocabPath` (`appsettings.json`) — por padrão apontam para essa pasta. Sem os arquivos, o upload de material falha de forma controlada (`StudyMaterial.Status = Failed`) explicando o que falta.
 
-O threshold de relevância material↔tópico (`ProcessMaterialHandler.RelevanceThreshold = 0.5`) foi calibrado empiricamente: embeddings BERT-family têm similaridade "de base" alta entre frases quaisquer do mesmo idioma, então um corte baixo (ex. 0.35) deixa passar tópicos não relacionados. Ajuste se notar falsos positivos/negativos.
+O threshold de relevância material↔tópico (`ProcessMaterialHandler.RelevanceThreshold = 0.5`) foi calibrado empiricamente: embeddings BERT-family têm similaridade "de base" alta entre frases quaisquer do mesmo idioma, então um corte baixo (ex. 0.35) deixa passar tópicos não relacionados. Ajuste se notar falsos positivos/negativos. **Importante:** o modelo é majoritariamente treinado em inglês — vincular um material em outro idioma (português, por exemplo) a tópicos no mesmo idioma funciona bem (validado com score ~0.70 num teste real), mas comparar material e tópico em idiomas diferentes praticamente não gera vínculo.
+
+### Importando vídeos do YouTube e links
+
+Além de PDF, `POST /api/exams/{id}/materials/youtube` (legenda do vídeo, via yt-dlp) e `POST /api/exams/{id}/materials/link` (texto legível da página, via HtmlAgilityPack) alimentam o mesmo pipeline de chunking/embeddings — nenhum modelo novo, nenhum custo de IA. `Llm:Provider`/chat continuam fora de escopo: isso é só ingestão de mais fontes de texto, não Q&A.
+
+O acesso direto via HTTP ao YouTube (sem yt-dlp) parou de funcionar durante o desenvolvimento: o YouTube passou a exigir um token de sessão amarrado a um carregamento real de página que uma requisição HTTP simples não fornece. yt-dlp contorna isso por ser mantido ativamente contra esse tipo de bloqueio — mas é scraping não-oficial, então pode quebrar de novo se o YouTube mudar de novo (nesse caso, `dotnet tool update` / `pip install -U yt-dlp` costuma resolver).
 
 ## Estrutura
 

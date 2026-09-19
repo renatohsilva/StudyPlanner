@@ -36,8 +36,7 @@ public class ProcessMaterialHandler(
 
         try
         {
-            await using var fileStream = await fileStorage.OpenReadAsync(material.FileUrl, cancellationToken);
-            var rawText = await pdfTextExtractor.ExtractTextAsync(fileStream, cancellationToken);
+            var rawText = await ExtractRawTextAsync(material, cancellationToken);
             var normalized = NoticeSectionSegmenter.Normalize(rawText);
             var chunkTexts = TextChunker.Chunk(normalized);
 
@@ -98,5 +97,19 @@ public class ProcessMaterialHandler(
         }
 
         await db.SaveChangesAsync(cancellationToken);
+    }
+
+    /// <summary>PDF extrai com PdfPig (binário); YouTube/Link já foram salvos como texto plano na importação.</summary>
+    private async Task<string> ExtractRawTextAsync(StudyMaterial material, CancellationToken cancellationToken)
+    {
+        await using var fileStream = await fileStorage.OpenReadAsync(material.FileUrl, cancellationToken);
+
+        if (material.SourceType == StudyMaterialSourceType.File)
+        {
+            return await pdfTextExtractor.ExtractTextAsync(fileStream, cancellationToken);
+        }
+
+        using var reader = new StreamReader(fileStream);
+        return await reader.ReadToEndAsync(cancellationToken);
     }
 }

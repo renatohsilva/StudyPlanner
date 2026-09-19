@@ -1,6 +1,8 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using StudyPlanner.Api.Common;
+using StudyPlanner.Application.Materials.Commands.ImportLinkMaterial;
+using StudyPlanner.Application.Materials.Commands.ImportYouTubeMaterial;
 using StudyPlanner.Application.Materials.Commands.ProcessMaterial;
 using StudyPlanner.Application.Materials.Commands.UploadMaterial;
 using StudyPlanner.Application.Materials.Queries.GetMaterialsByExam;
@@ -12,6 +14,9 @@ namespace StudyPlanner.Api.Controllers;
 [ApiController]
 public class MaterialsController(ISender sender) : ControllerBase
 {
+    public record ImportUrlRequest(string Url);
+
+
     /// <summary>
     /// Upload de material do aluno (apostila, resumo, PDF de aula). Processa de forma síncrona:
     /// extrai texto, gera chunks + embeddings locais (ONNX) e relaciona com os tópicos do edital.
@@ -37,6 +42,54 @@ public class MaterialsController(ISender sender) : ControllerBase
         catch (KeyNotFoundException ex)
         {
             return NotFound(new { message = ex.Message });
+        }
+    }
+
+    /// <summary>Importa a legenda de um vídeo do YouTube como material (via yt-dlp — ver README).</summary>
+    [HttpPost("api/exams/{examId:guid}/materials/youtube")]
+    public async Task<IActionResult> ImportYouTube(Guid examId, ImportUrlRequest request, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var userId = User.GetUserId();
+            var materialId = await sender.Send(new ImportYouTubeMaterialCommand(userId, examId, request.Url), cancellationToken);
+
+            await sender.Send(new ProcessMaterialCommand(materialId), cancellationToken);
+
+            var status = await sender.Send(new GetMaterialStatusQuery(materialId, userId), cancellationToken);
+            return Ok(status);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    /// <summary>Importa o texto legível de uma página como material.</summary>
+    [HttpPost("api/exams/{examId:guid}/materials/link")]
+    public async Task<IActionResult> ImportLink(Guid examId, ImportUrlRequest request, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var userId = User.GetUserId();
+            var materialId = await sender.Send(new ImportLinkMaterialCommand(userId, examId, request.Url), cancellationToken);
+
+            await sender.Send(new ProcessMaterialCommand(materialId), cancellationToken);
+
+            var status = await sender.Send(new GetMaterialStatusQuery(materialId, userId), cancellationToken);
+            return Ok(status);
+        }
+        catch (KeyNotFoundException ex)
+        {
+            return NotFound(new { message = ex.Message });
+        }
+        catch (InvalidOperationException ex)
+        {
+            return BadRequest(new { message = ex.Message });
         }
     }
 

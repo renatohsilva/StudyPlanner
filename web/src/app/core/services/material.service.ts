@@ -22,4 +22,12 @@ export class MaterialService {
   getByExam(examId: string): Observable<MaterialStatus[]> {
     return this.http.get<MaterialStatus[]>(`${API_BASE_URL}/exams/${examId}/materials`);
   }
+
+  importYouTube(examId: string, url: string): Observable<MaterialStatus> {
+    return this.http.post<MaterialStatus>(`${API_BASE_URL}/exams/${examId}/materials/youtube`, { url });
+  }
+
+  importLink(examId: string, url: string): Observable<MaterialStatus> {
+    return this.http.post<MaterialStatus>(`${API_BASE_URL}/exams/${examId}/materials/link`, { url });
+  }
 }

@@ -9,6 +9,7 @@ using StudyPlanner.Application.Exams.Commands.CreateExam;
 using StudyPlanner.Application.StudyPlans;
 using StudyPlanner.Infrastructure.Auth;
 using StudyPlanner.Infrastructure.Embeddings;
+using StudyPlanner.Infrastructure.ExternalContent;
 using StudyPlanner.Infrastructure.Llm;
 using StudyPlanner.Infrastructure.Pdf;
 using StudyPlanner.Infrastructure.Persistence;
@@ -33,6 +34,12 @@ builder.Services.AddSingleton<IPdfTextExtractor, PdfPigTextExtractor>();
 
 builder.Services.Configure<OnnxEmbeddingGeneratorOptions>(builder.Configuration.GetSection("Embeddings"));
 builder.Services.AddSingleton<IEmbeddingGenerator, OnnxEmbeddingGenerator>();
+
+// Ingestão de material a partir de YouTube (legenda via yt-dlp — ver README) e links (texto da
+// página). Sem custo, sem modelo novo: reaproveita o mesmo pipeline de chunking/embeddings do PDF.
+builder.Services.Configure<YtDlpOptions>(builder.Configuration.GetSection("YtDlp"));
+builder.Services.AddSingleton<IYouTubeTranscriptFetcher, YtDlpTranscriptFetcher>();
+builder.Services.AddHttpClient<IWebPageTextExtractor, HtmlAgilityWebPageTextExtractor>();
 
 // Llm:Provider = "Heuristic" (default, sem custo, regex determinístico) ou "Anthropic" (LLM real,
 // requer Llm:Anthropic:ApiKey via user-secrets). Troca de provider sem alterar nenhum outro código,

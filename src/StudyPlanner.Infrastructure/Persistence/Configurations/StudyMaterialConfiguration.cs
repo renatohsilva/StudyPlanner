@@ -12,6 +12,8 @@ public class StudyMaterialConfiguration : IEntityTypeConfiguration<StudyMaterial
         builder.HasKey(m => m.Id);
         builder.Property(m => m.Name).IsRequired().HasMaxLength(256);
         builder.Property(m => m.FileUrl).IsRequired().HasMaxLength(1024);
+        builder.Property(m => m.SourceType).HasConversion<string>().HasMaxLength(16);
+        builder.Property(m => m.SourceUrl).HasMaxLength(2048);
         builder.Property(m => m.Status).HasConversion<string>().HasMaxLength(32);
 
         builder.HasIndex(m => new { m.UserId, m.ExamId });

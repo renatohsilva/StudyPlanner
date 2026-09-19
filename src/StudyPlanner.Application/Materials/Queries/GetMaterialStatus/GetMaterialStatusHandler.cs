@@ -12,6 +12,8 @@ public class GetMaterialStatusHandler(IStudyPlannerDbContext db) : IRequestHandl
                 .FirstOrDefaultAsync(m => m.Id == request.MaterialId && m.UserId == request.UserId, cancellationToken)
             ?? throw new KeyNotFoundException($"StudyMaterial {request.MaterialId} not found.");
 
-        return new MaterialStatusDto(material.Id, material.ExamId, material.Name, material.Status.ToString(), material.ErrorMessage);
+        return new MaterialStatusDto(
+            material.Id, material.ExamId, material.Name, material.Status.ToString(),
+            material.SourceType.ToString(), material.SourceUrl, material.ErrorMessage);
     }
 }

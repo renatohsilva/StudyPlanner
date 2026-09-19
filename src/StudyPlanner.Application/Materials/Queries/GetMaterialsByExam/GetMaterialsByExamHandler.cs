@@ -13,7 +13,8 @@ public class GetMaterialsByExamHandler(IStudyPlannerDbContext db)
         return await db.StudyMaterials
             .Where(m => m.ExamId == request.ExamId && m.UserId == request.UserId)
             .OrderByDescending(m => m.UploadedAt)
-            .Select(m => new MaterialStatusDto(m.Id, m.ExamId, m.Name, m.Status.ToString(), m.ErrorMessage))
+            .Select(m => new MaterialStatusDto(
+                m.Id, m.ExamId, m.Name, m.Status.ToString(), m.SourceType.ToString(), m.SourceUrl, m.ErrorMessage))
             .ToListAsync(cancellationToken);
     }
 }

@@ -1,8 +1,9 @@
 <div class="page">
   <h1>Meus materiais</h1>
   <p class="hint">
-    Envie apostilas, resumos ou aulas em PDF. O sistema relaciona automaticamente cada material aos
-    tópicos do edital que ele cobre, usando embeddings locais (sem custo de IA).
+    Envie apostilas em PDF, cole um link de vídeo do YouTube ou de uma página. O sistema relaciona
+    automaticamente cada material aos tópicos do edital que ele cobre, usando embeddings locais (sem
+    custo de IA).
   </p>
 
   @if (errorMessage()) {
@@ -10,7 +11,7 @@
   }
 
   <section class="card">
-    <h2>Novo material</h2>
+    <h2>PDF</h2>
     <div class="upload-row">
       <input type="file" accept="application/pdf" (change)="onFileSelected($event)" />
       <button (click)="upload()" [disabled]="!selectedFile() || uploading()">
@@ -19,14 +20,42 @@
     </div>
   </section>
 
+  <section class="card">
+    <h2>Vídeo do YouTube</h2>
+    <p class="hint">Usa a legenda do vídeo (manual ou automática) como texto do material.</p>
+    <form class="upload-row" (ngSubmit)="importYouTube()">
+      <input type="url" placeholder="https://www.youtube.com/watch?v=..." [(ngModel)]="youTubeUrl" name="youTubeUrl" />
+      <button type="submit" [disabled]="!youTubeUrl || importingYouTube()">
+        {{ importingYouTube() ? 'Importando...' : 'Importar' }}
+      </button>
+    </form>
+  </section>
+
+  <section class="card">
+    <h2>Link (artigo, post, página)</h2>
+    <form class="upload-row" (ngSubmit)="importLink()">
+      <input type="url" placeholder="https://..." [(ngModel)]="linkUrl" name="linkUrl" />
+      <button type="submit" [disabled]="!linkUrl || importingLink()">
+        {{ importingLink() ? 'Importando...' : 'Importar' }}
+      </button>
+    </form>
+  </section>
+
   @for (material of materials(); track material.id) {
     <section class="card material">
       <div class="material-header">
-        <h3>{{ material.name }}</h3>
+        <div class="material-title">
+          <span class="source-badge">{{ material.sourceType }}</span>
+          <h3>{{ material.name }}</h3>
+        </div>
         <span class="badge" [class.processed]="material.status === 'Processed'" [class.failed]="material.status === 'Failed'">
           {{ material.status }}
         </span>
       </div>
+
+      @if (material.sourceUrl) {
+        <a class="source-link" [href]="material.sourceUrl" target="_blank" rel="noopener">{{ material.sourceUrl }}</a>
+      }
 
       @if (material.status === 'Failed') {
         <p class="error">{{ material.errorMessage }}</p>
