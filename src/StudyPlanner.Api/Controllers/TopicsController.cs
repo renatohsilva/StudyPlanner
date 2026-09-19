@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using StudyPlanner.Application.Questions.Queries.GetQuestionsByTopic;
 using StudyPlanner.Application.Topics.Commands.CreateTopic;
 
 namespace StudyPlanner.Api.Controllers;
@@ -25,5 +26,12 @@ public class TopicsController(ISender sender) : ControllerBase
         {
             return NotFound(new { message = ex.Message });
         }
+    }
+
+    [HttpGet("{id:guid}/questions")]
+    public async Task<IActionResult> Questions(Guid id, [FromQuery] Guid userId, CancellationToken cancellationToken)
+    {
+        var questions = await sender.Send(new GetQuestionsByTopicQuery(id, userId), cancellationToken);
+        return Ok(questions);
     }
 }

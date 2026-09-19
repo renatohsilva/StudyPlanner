@@ -1,0 +1,112 @@
+<div class="page">
+  <h1>Questões</h1>
+
+  @if (errorMessage()) {
+    <p class="error">{{ errorMessage() }}</p>
+  }
+
+  @if (exam(); as e) {
+    <section class="card">
+      <label>
+        Tópico
+        <select [ngModel]="selectedTopicId()" (ngModelChange)="selectTopic($event)">
+          @for (subject of e.subjects; track subject.id) {
+            <optgroup [label]="subject.name">
+              @for (topic of subject.topics; track topic.id) {
+                <option [value]="topic.id">{{ topic.name }}</option>
+              }
+            </optgroup>
+          }
+        </select>
+      </label>
+    </section>
+
+    @if (selectedTopicId()) {
+      <section class="card">
+        <div class="practice-header">
+          <h2>Praticar</h2>
+          <span class="count">{{ questions().length }} questão(ões) cadastrada(s)</span>
+        </div>
+
+        @if (currentQuestion; as q) {
+          <p class="statement">{{ q.statement }}</p>
+
+          @if (currentAlternatives.length > 0) {
+            <div class="alternatives">
+              @for (alt of currentAlternatives; track alt.key) {
+                <label class="alternative" [class.disabled]="lastResult() !== null">
+                  <input
+                    type="radio"
+                    name="answer"
+                    [value]="alt.key"
+                    [ngModel]="selectedAnswer()"
+                    (ngModelChange)="selectedAnswer.set($event)"
+                    [disabled]="lastResult() !== null"
+                  />
+                  <strong>{{ alt.key }})</strong> {{ alt.text }}
+                </label>
+              }
+            </div>
+          } @else {
+            <input
+              type="text"
+              placeholder="Sua resposta"
+              [ngModel]="selectedAnswer()"
+              (ngModelChange)="selectedAnswer.set($event)"
+              [disabled]="lastResult() !== null"
+            />
+          }
+
+          @if (lastResult(); as result) {
+            <div class="result" [class.correct]="result.isCorrect" [class.incorrect]="!result.isCorrect">
+              {{ result.isCorrect ? 'Certo!' : 'Errado. Resposta correta: ' + result.correctAnswer }}
+            </div>
+            <button (click)="nextQuestion()">Próxima questão →</button>
+          } @else {
+            <button (click)="submitAnswer()" [disabled]="!selectedAnswer()">Responder</button>
+          }
+        } @else {
+          <p class="hint">Nenhuma questão cadastrada para este tópico ainda.</p>
+        }
+      </section>
+
+      <section class="card">
+        <div class="practice-header">
+          <h2>Cadastrar questão</h2>
+          <button class="secondary" (click)="showCreateForm.set(!showCreateForm())">
+            {{ showCreateForm() ? 'Cancelar' : '+ Nova questão' }}
+          </button>
+        </div>
+
+        @if (showCreateForm()) {
+          <form (ngSubmit)="createQuestion()">
+            <label>
+              Enunciado
+              <textarea [(ngModel)]="newStatement" name="statement" rows="3" required></textarea>
+            </label>
+
+            @for (alt of newAlternatives; track $index; let i = $index) {
+              <div class="alt-row">
+                <span class="alt-key">{{ alt.key }})</span>
+                <input type="text" [(ngModel)]="alt.text" name="altText-{{ i }}" placeholder="Texto da alternativa" />
+                <button type="button" class="link-danger" (click)="removeAlternative(i)">remover</button>
+              </div>
+            }
+            <button type="button" class="secondary" (click)="addAlternative()">+ alternativa</button>
+
+            <label>
+              Alternativa correta
+              <select [(ngModel)]="newCorrectAnswer" name="correctAnswer">
+                @for (alt of newAlternatives; track alt.key) {
+                  <option [value]="alt.key">{{ alt.key }}</option>
+                }
+              </select>
+            </label>
+
+            <button type="submit" class="primary">Salvar questão</button>
+          </form>
+        }
+      </section>
+    }
+  }
+</div>

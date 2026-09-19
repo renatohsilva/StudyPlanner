@@ -1,0 +1,106 @@
+select,
+textarea {
+  font-family: inherit;
+  font-size: 0.95rem;
+  padding: 8px 10px;
+  border: 1px solid #cfd3dc;
+  border-radius: 6px;
+  width: 100%;
+}
+
+.practice-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+
+  h2 {
+    margin: 0;
+    font-size: 1rem;
+  }
+}
+
+.count {
+  font-size: 0.78rem;
+  color: #9ca3af;
+}
+
+.statement {
+  font-size: 0.95rem;
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+
+.hint {
+  color: #6b7280;
+  font-size: 0.85rem;
+}
+
+.alternatives {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.alternative {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border: 1px solid #e2e4e9;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+
+  &.disabled {
+    cursor: default;
+    opacity: 0.75;
+  }
+
+  input {
+    margin: 0;
+  }
+}
+
+.result {
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 12px;
+
+  &.correct {
+    background: #eafbea;
+    color: #15803d;
+  }
+
+  &.incorrect {
+    background: #fef2f2;
+    color: #c0392b;
+  }
+}
+
+.alt-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+
+  .alt-key {
+    font-weight: 700;
+    width: 20px;
+  }
+
+  input {
+    flex: 1;
+  }
+}
+
+.link-danger {
+  background: none;
+  color: #c0392b;
+  font-weight: 600;
+  font-size: 0.8rem;
+  padding: 4px 8px;
+}
